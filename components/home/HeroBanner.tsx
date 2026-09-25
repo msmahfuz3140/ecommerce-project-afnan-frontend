@@ -1,0 +1,160 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, Zap, ArrowRight } from "lucide-react";
+import { Offer } from "@/types";
+
+interface HeroBannerProps {
+  banners: Offer[];
+}
+
+export const HeroBanner: React.FC<HeroBannerProps> = ({ banners }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Fallback banners if none loaded from DB
+  const defaultBanners = [
+    {
+      _id: "default-1",
+      title: "গ্র্যান্ড সিজনাল অফার ও হট ডিলস",
+      subtitle: "ইলেকট্রনিক্স, কসমেটিক্স এবং প্রিমিয়াম ফ্যাশনে ৩৫% পর্যন্ত বিশাল ছাড়!",
+      bannerImage:
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80",
+      badge: "HOT DEALS",
+      link: "/?category=all",
+      discountPercentage: 35,
+    },
+    {
+      _id: "default-2",
+      title: "লেটেস্ট স্মার্ট গ্যাজেট ও অডিও গিয়ার",
+      subtitle: "১০০% অরিজিনাল ব্র্যান্ড ওয়ারেন্টি সহ দেশব্যাপী ক্যাশ অন ডেলিভারি।",
+      bannerImage:
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1600&q=80",
+      badge: "ELECTRONICS SPECIAL",
+      link: "/?category=electronics",
+      discountPercentage: 25,
+    },
+    {
+      _id: "default-3",
+      title: "প্রিমিয়াম স্কিনকেয়ার ও লাক্সারি পারফিউম",
+      subtitle: "ত্বকের বিশেষ যত্নে সেরা সব অথেনটিক বিউটি কেয়ার প্রোডাক্ট।",
+      bannerImage:
+        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1600&q=80",
+      badge: "BEAUTY & CARE",
+      link: "/?category=cosmetics",
+      discountPercentage: 30,
+    },
+  ];
+
+  const displayBanners = banners && banners.length > 0 ? banners : defaultBanners;
+
+  // Auto slide every 5 seconds
+  useEffect(() => {
+    if (displayBanners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % displayBanners.length);
+    }, 5500);
+    return () => clearInterval(interval);
+  }, [displayBanners.length]);
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + displayBanners.length) % displayBanners.length);
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % displayBanners.length);
+  };
+
+  return (
+    <section className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6">
+      <div className="relative h-[220px] sm:h-[350px] md:h-[420px] rounded-2xl overflow-hidden shadow-lg border border-rose-100 bg-slate-900 group">
+        {displayBanners.map((banner, idx) => (
+          <div
+            key={banner._id || idx}
+            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+              idx === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+            }`}
+          >
+            {/* Background Image */}
+            <div className="absolute inset-0">
+              <Image
+                src={banner.bannerImage || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80"}
+                alt={banner.title}
+                fill
+                priority={idx === 0}
+                className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-transparent" />
+            </div>
+
+            {/* Content Overlay */}
+            <div className="relative z-20 h-full flex flex-col justify-center px-6 sm:px-12 md:px-16 max-w-2xl text-white">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#df2d4d] text-white text-xs font-bold w-fit mb-3 shadow-md animate-bounce">
+                <Zap className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
+                {banner.badge || "SPECIAL OFFER"}
+              </div>
+
+              <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-snug drop-shadow-md">
+                {banner.title}
+              </h2>
+
+              {banner.subtitle && (
+                <p className="mt-2 sm:mt-3 text-xs sm:text-sm md:text-base text-slate-200 line-clamp-2 drop-shadow">
+                  {banner.subtitle}
+                </p>
+              )}
+
+              <div className="mt-4 sm:mt-6 flex items-center gap-3">
+                <Link
+                  href={banner.link || "/?category=all"}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/30 transition-all hover:gap-3"
+                >
+                  কেনাকাটা করুন
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <span className="hidden sm:inline-block text-xs font-medium text-emerald-400 bg-emerald-950/80 px-3 py-1.5 rounded-full border border-emerald-500/30">
+                  ✓ ক্যাশ অন ডেলিভারি সুবিধা
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* Navigation Buttons */}
+        {displayBanners.length > 1 && (
+          <>
+            <button
+              onClick={prevSlide}
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[#df2d4d] text-white backdrop-blur flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+              aria-label="Previous Slide"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={nextSlide}
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[#df2d4d] text-white backdrop-blur flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+              aria-label="Next Slide"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            {/* Dots */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
+              {displayBanners.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={`h-2 rounded-full transition-all ${
+                    i === currentIndex ? "w-6 bg-[#df2d4d]" : "w-2 bg-white/50 hover:bg-white"
+                  }`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+};
