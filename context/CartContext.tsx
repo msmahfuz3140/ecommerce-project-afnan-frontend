@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product } from "@/types";
 
+import { Toast } from "@/components/ui/Toast";
+
 export interface CartItem {
   product: Product;
   quantity: number;
@@ -21,8 +23,10 @@ interface CartContextType {
   isCheckoutOpen: boolean;
   setIsCheckoutOpen: (open: boolean) => void;
   directCheckoutItem: CartItem | null;
+  setDirectCheckoutItem: (item: CartItem | null) => void;
   openDirectCheckout: (product: Product, quantity?: number) => void;
   closeDirectCheckout: () => void;
+  showCartToast: (product: Product, quantity: number) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -33,16 +37,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [directCheckoutItem, setDirectCheckoutItem] = useState<CartItem | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [toast, setToast] = useState<{ show: boolean; product: Product; quantity: number } | null>(null);
 
-  // Load cart from localStorage
+  // Load cart & directCheckoutItem from localStorage
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem("auramart_cart");
       if (savedCart) {
         setCart(JSON.parse(savedCart));
       }
+      const savedDirect = localStorage.getItem("auramart_direct_checkout");
+      if (savedDirect) {
+        setDirectCheckoutItem(JSON.parse(savedDirect));
+      }
     } catch (e) {
-      console.error("Failed to load cart", e);
+      console.error("Failed to load cart/checkout state", e);
     }
     setMounted(true);
   }, []);
@@ -58,6 +67,35 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [cart, mounted]);
 
+  // Save directCheckoutItem to localStorage
+  useEffect(() => {
+    if (mounted) {
+      try {
+        if (directCheckoutItem) {
+          localStorage.setItem("auramart_direct_checkout", JSON.stringify(directCheckoutItem));
+        } else {
+          localStorage.removeItem("auramart_direct_checkout");
+        }
+      } catch (e) {
+        console.error("Failed to save direct checkout item", e);
+      }
+    }
+  }, [directCheckoutItem, mounted]);
+
+  const showCartToast = (product: Product, quantity: number) => {
+    setToast({ show: true, product, quantity });
+  };
+
+  // Auto-dismiss toast after 3.5 seconds
+  useEffect(() => {
+    if (toast?.show) {
+      const timer = setTimeout(() => {
+        setToast((prev) => (prev ? { ...prev, show: false } : null));
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   const addToCart = (product: Product, quantity: number = 1) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.product._id === product._id);
@@ -70,7 +108,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return [...prev, { product, quantity }];
     });
-    setIsCartOpen(true);
+
+    // DO NOT open slider automatically as requested!
+    // Instead show friendly Toast notification:
+    showCartToast(product, quantity);
   };
 
   const removeFromCart = (productId: string) => {
@@ -94,13 +135,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const openDirectCheckout = (product: Product, quantity: number = 1) => {
-    setDirectCheckoutItem({ product, quantity });
-    setIsCheckoutOpen(true);
+    const item = { product, quantity };
+    setDirectCheckoutItem(item);
+    try {
+      localStorage.setItem("auramart_direct_checkout", JSON.stringify(item));
+    } catch (e) {}
   };
 
   const closeDirectCheckout = () => {
     setDirectCheckoutItem(null);
     setIsCheckoutOpen(false);
+    try {
+      localStorage.removeItem("auramart_direct_checkout");
+    } catch (e) {}
   };
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -124,11 +171,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isCheckoutOpen,
         setIsCheckoutOpen,
         directCheckoutItem,
+        setDirectCheckoutItem,
         openDirectCheckout,
         closeDirectCheckout,
+        showCartToast,
       }}
     >
       {children}
+      {/* Global Toast for Cart Additions */}
+      <Toast
+        toast={toast}
+        onClose={() => setToast((prev) => (prev ? { ...prev, show: false } : null))}
+        onOpenCart={() => setIsCartOpen(true)}
+      />
     </CartContext.Provider>
   );
 };

@@ -251,91 +251,164 @@ export default function AdminProductsPage() {
             <p className="text-sm font-bold text-slate-700">কোনো পণ্য নেই</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
-                <tr>
-                  <th className="py-3.5 px-4">পণ্য</th>
-                  <th className="py-3.5 px-4">ক্যাটাগরি</th>
-                  <th className="py-3.5 px-4">ক্রয়মূল্য (Buy Cost)</th>
-                  <th className="py-3.5 px-4">বিক্রয়মূল্য (Sell Price)</th>
-                  <th className="py-3.5 px-4">সম্ভাব্য লাভ</th>
-                  <th className="py-3.5 px-4">স্টক</th>
-                  <th className="py-3.5 px-4">অফার ট্যাগ</th>
-                  <th className="py-3.5 px-4 text-right">একশন</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {products.map((prod) => {
-                  const profitPerUnit = prod.sellPrice - (prod.buyPrice || 0);
-                  return (
-                    <tr key={prod._id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3 px-4 flex items-center gap-3">
-                        <div className="relative w-10 h-10 rounded-xl bg-slate-100 border shrink-0 overflow-hidden">
-                          <Image src={prod.images[0] || ""} alt="" fill className="object-cover" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 line-clamp-1">{prod.name}</p>
-                          <p className="text-[10px] text-slate-400">{prod.subCategory || "General"}</p>
-                        </div>
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <span className="font-bold uppercase text-[10px] text-rose-600 bg-rose-50 px-2 py-0.5 rounded">
+          <>
+            {/* Mobile Cards View (Visible on small screens < md) */}
+            <div className="block md:hidden divide-y divide-slate-100">
+              {products.map((prod) => {
+                const profitPerUnit = prod.sellPrice - (prod.buyPrice || 0);
+                return (
+                  <div key={prod._id} className="p-4 hover:bg-slate-50/80 transition-colors space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="relative w-14 h-14 rounded-2xl bg-slate-100 border shrink-0 overflow-hidden">
+                        <Image src={prod.images[0] || ""} alt="" fill className="object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold uppercase text-[9px] text-rose-600 bg-rose-50 px-2 py-0.5 rounded inline-block mb-1">
                           {prod.category}
                         </span>
-                      </td>
+                        <h4 className="font-bold text-slate-900 text-xs sm:text-sm line-clamp-2 leading-snug">
+                          {prod.name}
+                        </h4>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{prod.subCategory || "General"}</p>
+                      </div>
+                    </div>
 
-                      <td className="py-3 px-4 font-mono text-amber-700 font-bold">
-                        ৳{prod.buyPrice || 0}
-                      </td>
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 grid grid-cols-3 gap-2 text-center text-xs">
+                      <div>
+                        <span className="text-slate-400 text-[10px] block">ক্রয়মূল্য</span>
+                        <span className="font-bold text-amber-700">৳{prod.buyPrice || 0}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 text-[10px] block">বিক্রয়মূল্য</span>
+                        <span className="font-black text-slate-900">৳{prod.sellPrice}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 text-[10px] block">একক লাভ</span>
+                        <span className="font-black text-emerald-600">+৳{profitPerUnit}</span>
+                      </div>
+                    </div>
 
-                      <td className="py-3 px-4 font-mono font-black text-slate-900">
-                        ৳{prod.sellPrice}
-                      </td>
-
-                      <td className="py-3 px-4 font-black text-emerald-600">
-                        +৳{profitPerUnit}
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <span className={`font-bold ${prod.stock > 10 ? "text-slate-800" : "text-rose-600"}`}>
-                          {prod.stock} টি
+                    <div className="flex items-center justify-between text-xs pt-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-bold px-2 py-0.5 rounded-full text-[10px] ${prod.stock > 10 ? "bg-slate-100 text-slate-700" : "bg-rose-100 text-rose-700"}`}>
+                          স্টক: {prod.stock} টি
                         </span>
-                      </td>
-
-                      <td className="py-3 px-4">
-                        {prod.isOffer ? (
+                        {prod.isOffer && (
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
                             {prod.offerBadge || "Offer"}
                           </span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
                         )}
-                      </td>
+                      </div>
 
-                      <td className="py-3 px-4 text-right space-x-1.5">
+                      <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => openEditModal(prod)}
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors"
-                          title="সম্পাদনা করুন"
+                          className="px-2.5 py-1.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold text-xs flex items-center gap-1 transition-colors"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>এডিট</span>
                         </button>
                         <button
                           onClick={() => handleDelete(prod._id)}
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-rose-50 hover:text-[#df2d4d] transition-colors"
+                          className="p-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
                           title="মুছে ফেলুন"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table (Visible on md+) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
+                  <tr>
+                    <th className="py-3.5 px-4">পণ্য</th>
+                    <th className="py-3.5 px-4">ক্যাটাগরি</th>
+                    <th className="py-3.5 px-4">ক্রয়মূল্য (Buy Cost)</th>
+                    <th className="py-3.5 px-4">বিক্রয়মূল্য (Sell Price)</th>
+                    <th className="py-3.5 px-4">সম্ভাব্য লাভ</th>
+                    <th className="py-3.5 px-4">স্টক</th>
+                    <th className="py-3.5 px-4">অফার ট্যাগ</th>
+                    <th className="py-3.5 px-4 text-right">একশন</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {products.map((prod) => {
+                    const profitPerUnit = prod.sellPrice - (prod.buyPrice || 0);
+                    return (
+                      <tr key={prod._id} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="py-3 px-4 flex items-center gap-3">
+                          <div className="relative w-10 h-10 rounded-xl bg-slate-100 border shrink-0 overflow-hidden">
+                            <Image src={prod.images[0] || ""} alt="" fill className="object-cover" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-900 line-clamp-1">{prod.name}</p>
+                            <p className="text-[10px] text-slate-400">{prod.subCategory || "General"}</p>
+                          </div>
+                        </td>
+
+                        <td className="py-3 px-4">
+                          <span className="font-bold uppercase text-[10px] text-rose-600 bg-rose-50 px-2 py-0.5 rounded">
+                            {prod.category}
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-4 font-mono text-amber-700 font-bold">
+                          ৳{prod.buyPrice || 0}
+                        </td>
+
+                        <td className="py-3 px-4 font-mono font-black text-slate-900">
+                          ৳{prod.sellPrice}
+                        </td>
+
+                        <td className="py-3 px-4 font-black text-emerald-600">
+                          +৳{profitPerUnit}
+                        </td>
+
+                        <td className="py-3 px-4">
+                          <span className={`font-bold ${prod.stock > 10 ? "text-slate-800" : "text-rose-600"}`}>
+                            {prod.stock} টি
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-4">
+                          {prod.isOffer ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                              {prod.offerBadge || "Offer"}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-4 text-right space-x-1.5">
+                          <button
+                            onClick={() => openEditModal(prod)}
+                            className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors"
+                            title="সম্পাদনা করুন"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(prod._id)}
+                            className="p-1.5 rounded-lg text-slate-600 hover:bg-rose-50 hover:text-[#df2d4d] transition-colors"
+                            title="মুছে ফেলুন"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

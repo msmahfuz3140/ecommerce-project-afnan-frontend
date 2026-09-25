@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ShoppingCart, Zap, Star } from "lucide-react";
 import { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
@@ -12,7 +13,14 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => {
+  const router = useRouter();
   const { addToCart, openDirectCheckout } = useCart();
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    openDirectCheckout(product, 1);
+    router.push("/checkout");
+  };
 
   const discountPercent =
     product.originalPrice > product.sellPrice
@@ -97,8 +105,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails
           <div className="mt-2.5 grid grid-cols-5 gap-1.5">
             {/* 1-Click Cash on Delivery Order Button */}
             <button
-              onClick={() => openDirectCheckout(product, 1)}
-              className="col-span-4 flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs font-bold shadow-md shadow-rose-500/20 active:scale-97 transition-all"
+              onClick={handleBuyNow}
+              className="col-span-4 flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs font-bold shadow-md shadow-rose-500/20 active:scale-97 transition-all cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
               অর্ডার করুন

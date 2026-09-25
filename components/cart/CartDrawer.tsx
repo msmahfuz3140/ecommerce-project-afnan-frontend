@@ -2,10 +2,12 @@
 
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 export const CartDrawer: React.FC = () => {
+  const router = useRouter();
   const {
     cart,
     isCartOpen,
@@ -14,14 +16,15 @@ export const CartDrawer: React.FC = () => {
     removeFromCart,
     subtotal,
     totalItems,
-    setIsCheckoutOpen,
+    closeDirectCheckout,
   } = useCart();
 
   if (!isCartOpen) return null;
 
   const handleProceedToCheckout = () => {
     setIsCartOpen(false);
-    setIsCheckoutOpen(true);
+    closeDirectCheckout();
+    router.push("/checkout");
   };
 
   return (

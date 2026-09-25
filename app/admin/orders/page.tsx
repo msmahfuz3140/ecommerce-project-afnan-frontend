@@ -183,105 +183,192 @@ export default function AdminOrdersPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
-                <tr>
-                  <th className="py-3.5 px-4">অর্ডার আইডি</th>
-                  <th className="py-3.5 px-4">তারিখ ও সময়</th>
-                  <th className="py-3.5 px-4">গ্রাহকের নাম ও ফোন</th>
-                  <th className="py-3.5 px-4">পণ্য সংখ্যা</th>
-                  <th className="py-3.5 px-4">মোট বিল (COD)</th>
-                  <th className="py-3.5 px-4">নিট লাভ</th>
-                  <th className="py-3.5 px-4">বর্তমান স্ট্যাটাস</th>
-                  <th className="py-3.5 px-4 text-right">একশন</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {orders.map((ord) => {
-                  const conf = statusConfig[ord.status] || statusConfig.pending;
-                  const StatusIcon = conf.icon;
-                  return (
-                    <tr
-                      key={ord._id}
-                      className="hover:bg-rose-50/30 transition-colors group cursor-pointer"
-                      onClick={() => openOrderDetails(ord)}
-                    >
-                      {/* Order ID - Big Clickable */}
-                      <td className="py-3.5 px-4">
-                        <span className="font-mono font-black text-sm text-[#df2d4d] group-hover:underline">
+          <>
+            {/* Mobile Cards View (Visible on small screens < md) */}
+            <div className="block md:hidden divide-y divide-slate-100">
+              {orders.map((ord) => {
+                const conf = statusConfig[ord.status] || statusConfig.pending;
+                const StatusIcon = conf.icon;
+                return (
+                  <div
+                    key={ord._id}
+                    onClick={() => openOrderDetails(ord)}
+                    className="p-4 hover:bg-rose-50/20 active:bg-rose-50/40 transition-colors cursor-pointer space-y-3"
+                  >
+                    {/* Top Row: Order ID + Status */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="font-mono font-black text-sm text-[#df2d4d]">
                           {ord.orderId}
                         </span>
-                        <span className="block text-[10px] text-slate-400">ক্লিক করে দেখুন</span>
-                      </td>
-
-                      {/* Date */}
-                      <td className="py-3.5 px-4 text-slate-600">
-                        <span className="font-medium">
-                          {new Date(ord.createdAt).toLocaleDateString("bn-BD")}
-                        </span>
                         <span className="block text-[10px] text-slate-400">
-                          {new Date(ord.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(ord.createdAt).toLocaleDateString("bn-BD")} • {new Date(ord.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                         </span>
-                      </td>
+                      </div>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${conf.badge}`}
+                      >
+                        <StatusIcon className="w-3 h-3" />
+                        {conf.label.split(" ")[0]}
+                      </span>
+                    </div>
 
-                      {/* Customer */}
-                      <td className="py-3.5 px-4">
+                    {/* Customer Row */}
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 flex items-center justify-between text-xs">
+                      <div>
                         <p className="font-bold text-slate-900">{ord.customerName}</p>
-                        <a
-                          href={`tel:${ord.phone}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-[11px] text-slate-500 hover:text-[#df2d4d] flex items-center gap-1 font-mono"
-                        >
-                          <Phone className="w-3 h-3" />
-                          {ord.phone}
-                        </a>
-                      </td>
+                        <p className="text-[11px] text-slate-500 line-clamp-1">{ord.address}, {ord.city}</p>
+                      </div>
+                      <a
+                        href={`tel:${ord.phone}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center gap-1 font-mono text-[11px] font-bold border border-emerald-200 shrink-0 ml-2"
+                        title="Call Customer"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        Call
+                      </a>
+                    </div>
 
-                      {/* Items */}
-                      <td className="py-3.5 px-4 text-slate-600 font-semibold">
-                        {ord.items?.reduce((s, i) => s + i.quantity, 0) || 0} টি
-                      </td>
-
-                      {/* Total */}
-                      <td className="py-3.5 px-4 font-black text-slate-900 text-sm">
-                        ৳{ord.totalAmount?.toLocaleString()}
-                      </td>
-
-                      {/* Profit */}
-                      <td className="py-3.5 px-4 font-black text-emerald-600">
-                        +৳{ord.totalProfit?.toLocaleString()}
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${conf.badge}`}
-                        >
-                          <StatusIcon className="w-3 h-3" />
-                          {conf.label.split(" ")[0]}
+                    {/* Financial & Items Summary */}
+                    <div className="flex items-center justify-between text-xs pt-1">
+                      <div>
+                        <span className="text-slate-400 text-[10px] block">পণ্য সংখ্যা</span>
+                        <span className="font-bold text-slate-700">
+                          {ord.items?.reduce((s, i) => s + i.quantity, 0) || 0} টি
                         </span>
-                      </td>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 text-[10px] block">নিট লাভ</span>
+                        <span className="font-black text-emerald-600">
+                          +৳{ord.totalProfit?.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-slate-400 text-[10px] block">সর্বমোট বিল (COD)</span>
+                        <span className="font-black text-slate-900 text-sm">
+                          ৳{ord.totalAmount?.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
 
-                      {/* Action */}
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openOrderDetails(ord);
-                          }}
-                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#df2d4d] hover:text-white text-slate-700 text-xs font-bold transition-all inline-flex items-center gap-1 shadow-xs"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>বিস্তারিত</span>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                    {/* Action Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openOrderDetails(ord);
+                      }}
+                      className="w-full py-2 rounded-xl bg-slate-900 hover:bg-[#df2d4d] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>বিস্তারিত ও স্ট্যাটাস পরিবর্তন</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop & Tablet Table (Visible on md+) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
+                  <tr>
+                    <th className="py-3.5 px-4">অর্ডার আইডি</th>
+                    <th className="py-3.5 px-4">তারিখ ও সময়</th>
+                    <th className="py-3.5 px-4">গ্রাহকের নাম ও ফোন</th>
+                    <th className="py-3.5 px-4">পণ্য সংখ্যা</th>
+                    <th className="py-3.5 px-4">মোট বিল (COD)</th>
+                    <th className="py-3.5 px-4">নিট লাভ</th>
+                    <th className="py-3.5 px-4">বর্তমান স্ট্যাটাস</th>
+                    <th className="py-3.5 px-4 text-right">একশন</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {orders.map((ord) => {
+                    const conf = statusConfig[ord.status] || statusConfig.pending;
+                    const StatusIcon = conf.icon;
+                    return (
+                      <tr
+                        key={ord._id}
+                        className="hover:bg-rose-50/30 transition-colors group cursor-pointer"
+                        onClick={() => openOrderDetails(ord)}
+                      >
+                        {/* Order ID - Big Clickable */}
+                        <td className="py-3.5 px-4">
+                          <span className="font-mono font-black text-sm text-[#df2d4d] group-hover:underline">
+                            {ord.orderId}
+                          </span>
+                          <span className="block text-[10px] text-slate-400">ক্লিক করে দেখুন</span>
+                        </td>
+
+                        {/* Date */}
+                        <td className="py-3.5 px-4 text-slate-600">
+                          <span className="font-medium">
+                            {new Date(ord.createdAt).toLocaleDateString("bn-BD")}
+                          </span>
+                          <span className="block text-[10px] text-slate-400">
+                            {new Date(ord.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </td>
+
+                        {/* Customer */}
+                        <td className="py-3.5 px-4">
+                          <p className="font-bold text-slate-900">{ord.customerName}</p>
+                          <a
+                            href={`tel:${ord.phone}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-[11px] text-slate-500 hover:text-[#df2d4d] flex items-center gap-1 font-mono"
+                          >
+                            <Phone className="w-3 h-3" />
+                            {ord.phone}
+                          </a>
+                        </td>
+
+                        {/* Items */}
+                        <td className="py-3.5 px-4 text-slate-600 font-semibold">
+                          {ord.items?.reduce((s, i) => s + i.quantity, 0) || 0} টি
+                        </td>
+
+                        {/* Total */}
+                        <td className="py-3.5 px-4 font-black text-slate-900 text-sm">
+                          ৳{ord.totalAmount?.toLocaleString()}
+                        </td>
+
+                        {/* Profit */}
+                        <td className="py-3.5 px-4 font-black text-emerald-600">
+                          +৳{ord.totalProfit?.toLocaleString()}
+                        </td>
+
+                        {/* Status */}
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${conf.badge}`}
+                          >
+                            <StatusIcon className="w-3 h-3" />
+                            {conf.label.split(" ")[0]}
+                          </span>
+                        </td>
+
+                        {/* Action */}
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openOrderDetails(ord);
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#df2d4d] hover:text-white text-slate-700 text-xs font-bold transition-all inline-flex items-center gap-1 shadow-xs"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>বিস্তারিত</span>
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

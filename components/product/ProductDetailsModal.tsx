@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { X, Zap, ShoppingCart, ShieldCheck, Truck, RotateCcw, CheckCircle2 } from "lucide-react";
 import { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
@@ -15,6 +16,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
   product,
   onClose,
 }) => {
+  const router = useRouter();
   const { addToCart, openDirectCheckout } = useCart();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -29,6 +31,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
   const handleBuyNow = () => {
     onClose();
     openDirectCheckout(product, quantity);
+    router.push("/checkout");
   };
 
   const handleAddToCart = () => {
