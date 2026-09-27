@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { trackMockOrderRecord } from "@/lib/mockData";
+import { trackMockOrders } from "@/lib/mockData";
 
 export async function GET(
   request: NextRequest,
@@ -9,19 +9,31 @@ export async function GET(
     const resolvedParams = await context.params;
     const { query } = resolvedParams;
 
-    const order = trackMockOrderRecord(decodeURIComponent(query));
-    if (!order) {
+    const decodedQuery = decodeURIComponent(query);
+    const orders = trackMockOrders(decodedQuery);
+
+    if (!orders || orders.length === 0) {
       return NextResponse.json(
-        { success: false, message: "Order not found" },
+        {
+          success: false,
+          message: "আপনার দেওয়া অর্ডার আইডি বা মোবাইল নাম্বারে কোনো অর্ডার পাওয়া যায়নি।",
+          orders: [],
+        },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, order });
+    return NextResponse.json({
+      success: true,
+      orders,
+      order: orders[0],
+      count: orders.length,
+    });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to track order" },
+      { success: false, message: error.message || "Failed to track order", orders: [] },
       { status: 500 }
     );
   }
 }
+

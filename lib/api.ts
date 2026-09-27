@@ -5,6 +5,7 @@ import {
   getOffersData,
   createMockOrderRecord,
   trackMockOrderRecord,
+  trackMockOrders,
   getAllProducts,
   ProductItem,
 } from "./mockData";
@@ -206,32 +207,52 @@ export const createOrder = async (orderData: {
 
 export const trackOrder = async (query: string) => {
   const baseUrl = getApiBaseUrl();
+  const cleanQ = (query || "").trim();
+  if (!cleanQ) {
+    return {
+      success: false,
+      orders: [],
+      message: "অনুগ্রহ করে অর্ডার আইডি অথবা মোবাইল নম্বর প্রদান করুন।",
+    };
+  }
+
   try {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
     const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
 
-    const res = await fetch(`${baseUrl}/orders/track/${encodeURIComponent(query)}`, {
+    const res = await fetch(`${baseUrl}/orders/track/${encodeURIComponent(cleanQ)}`, {
       signal: controller ? controller.signal : undefined,
     });
 
     if (timeoutId) clearTimeout(timeoutId);
 
     if (res.ok) {
-      return await res.json();
+      const data = await res.json();
+      if (data && (Array.isArray(data.orders) && data.orders.length > 0 || data.order)) {
+        const orders = Array.isArray(data.orders) && data.orders.length > 0 ? data.orders : [data.order];
+        return {
+          success: true,
+          orders,
+          order: orders[0],
+        };
+      }
     }
     throw new Error("Remote order track failed");
   } catch (error) {
-    const order = trackMockOrderRecord(query);
-    if (order) {
+    // Client & fallback search (matches local storage and demo orders)
+    const orders = trackMockOrders(cleanQ);
+    if (orders && orders.length > 0) {
       return {
         success: true,
-        order,
+        orders,
+        order: orders[0],
         source: "fallback",
       };
     }
     return {
       success: false,
-      message: "আপনার দেওয়া অর্ডার আইডি বা মোবাইল নাম্বারে কোনো অর্ডার পাওয়া যায়নি।",
+      orders: [],
+      message: "আপনার দেওয়া অর্ডার আইডি বা মোবাইল নাম্বারে কোনো অর্ডার পাওয়া যায়নি। সঠিক তথ্য দিয়ে আবার চেষ্টা করুন।",
     };
   }
 };

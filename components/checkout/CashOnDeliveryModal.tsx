@@ -11,6 +11,8 @@ import {
   Loader2,
   Receipt,
   Sparkles,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder } from "@/lib/api";
@@ -46,8 +48,17 @@ export const CashOnDeliveryModal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [placedOrder, setPlacedOrder] = useState<any | null>(null);
+  const [copiedOrderId, setCopiedOrderId] = useState(false);
 
   if (!isCheckoutOpen) return null;
+
+  const copyOrderId = (orderId: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(orderId);
+      setCopiedOrderId(true);
+      setTimeout(() => setCopiedOrderId(false), 2500);
+    }
+  };
 
   const handleCityChange = (val: string) => {
     setFormData({ ...formData, city: val });
@@ -61,6 +72,7 @@ export const CashOnDeliveryModal: React.FC = () => {
   const handleClose = () => {
     setError("");
     setPlacedOrder(null);
+    setCopiedOrderId(false);
     closeDirectCheckout();
     setIsCheckoutOpen(false);
   };
@@ -123,7 +135,7 @@ export const CashOnDeliveryModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[94vh] flex flex-col">
+      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[94vh] flex flex-col font-sans">
         {/* Header */}
         <div className="bg-gradient-to-r from-rose-600 to-[#df2d4d] text-white p-4 sm:p-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -134,7 +146,7 @@ export const CashOnDeliveryModal: React.FC = () => {
           </div>
           <button
             onClick={handleClose}
-            className="p-1 rounded-full hover:bg-white/20 text-white transition-colors"
+            className="p-1 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -145,21 +157,52 @@ export const CashOnDeliveryModal: React.FC = () => {
         <div className="p-4 sm:p-6 overflow-y-auto">
           {placedOrder ? (
             /* Order Placed Success View */
-            <div className="text-center py-4 space-y-4">
+            <div className="text-center py-3 space-y-4">
               <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md animate-bounce">
                 <CheckCircle className="w-10 h-10" />
               </div>
 
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
                   🎉 অভিনন্দন! আপনার অর্ডার সফলভাবে গ্রহণ করা হয়েছে
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-2">
-                  অর্ডার আইডি: <span className="text-[#df2d4d]">{placedOrder.orderId}</span>
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
-                  পণ্য হাতে পেয়ে মূল্য পরিশোধ করবেন। আমাদের কাস্টমার কেয়ার প্রতিনিধি শীঘ্রই আপনার নম্বরে ({placedOrder.phone}) ফোন করে অর্ডার নিশ্চিত করবেন।
+                <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-md mx-auto">
+                  পণ্য হাতে পেয়ে মূল্য পরিশোধ করবেন। আমাদের প্রতিনিধি শীঘ্রই আপনার নম্বরে ({placedOrder.phone}) ফোন করে অর্ডার নিশ্চিত করবেন।
                 </p>
+              </div>
+
+              {/* Order ID Box with Copy Button */}
+              <div className="bg-rose-50/80 border border-rose-200 rounded-2xl p-3.5 max-w-md mx-auto flex items-center justify-between gap-3 shadow-xs">
+                <div className="text-left">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                    অর্ডার আইডি (Order ID)
+                  </span>
+                  <span className="font-mono text-xl sm:text-2xl font-black text-[#df2d4d]">
+                    {placedOrder.orderId}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => copyOrderId(placedOrder.orderId)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 ${
+                    copiedOrderId
+                      ? "bg-emerald-600 text-white"
+                      : "bg-white hover:bg-slate-100 text-slate-800 border border-slate-300"
+                  }`}
+                  title="অর্ডার আইডি কপি করুন"
+                >
+                  {copiedOrderId ? (
+                    <>
+                      <Check className="w-4 h-4 text-white" />
+                      <span>কপি হয়েছে!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 text-slate-600" />
+                      <span>আইডি কপি</span>
+                    </>
+                  )}
+                </button>
               </div>
 
               {/* Order Summary Card */}
@@ -169,8 +212,8 @@ export const CashOnDeliveryModal: React.FC = () => {
                   <span className="font-bold text-slate-800">{placedOrder.customerName}</span>
                 </div>
                 <div className="flex justify-between border-b pb-2">
-                  <span className="text-slate-500">মোবাইল:</span>
-                  <span className="font-bold text-slate-800">{placedOrder.phone}</span>
+                  <span className="text-slate-500">মোবাইল নম্বর:</span>
+                  <span className="font-bold text-slate-800 font-mono">{placedOrder.phone}</span>
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="text-slate-500">ঠিকানা:</span>
@@ -186,7 +229,24 @@ export const CashOnDeliveryModal: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-2 flex flex-col gap-2.5 max-w-sm mx-auto">
+              {/* Buttons */}
+              <div className="pt-2 flex flex-col gap-2.5 max-w-md mx-auto">
+                {/* Track Order Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const id = placedOrder.orderId;
+                    handleClose();
+                    if (typeof window !== "undefined") {
+                      window.dispatchEvent(new CustomEvent("open-track-order", { detail: { query: id } }));
+                    }
+                  }}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                >
+                  <Truck className="w-4 h-4 text-yellow-400" />
+                  <span>অর্ডার লাইভ ট্র্যাক করুন (Live Tracking)</span>
+                </button>
+
                 <a
                   href={`https://wa.me/8801356584296?text=${encodeURIComponent(
                     `আসসালামু আলাইকুম, আমি GAXIN MART এ অর্ডার করেছি। আমার অর্ডার আইডি: ${placedOrder.orderId}`

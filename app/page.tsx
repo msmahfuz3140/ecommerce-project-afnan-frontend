@@ -31,6 +31,19 @@ function HomeContent() {
   const [sortBy, setSortBy] = useState("latest");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [trackModalOpen, setTrackModalOpen] = useState(false);
+  const [trackInitialQuery, setTrackInitialQuery] = useState("");
+
+  // Global listener to trigger track order modal from anywhere
+  useEffect(() => {
+    const handler = (e: any) => {
+      if (e.detail?.query) {
+        setTrackInitialQuery(e.detail.query);
+      }
+      setTrackModalOpen(true);
+    };
+    window.addEventListener("open-track-order", handler);
+    return () => window.removeEventListener("open-track-order", handler);
+  }, []);
 
   // Load products and offers
   useEffect(() => {
@@ -209,7 +222,11 @@ function HomeContent() {
       <CashOnDeliveryModal />
       <TrackOrderModal
         isOpen={trackModalOpen}
-        onClose={() => setTrackModalOpen(false)}
+        initialQuery={trackInitialQuery}
+        onClose={() => {
+          setTrackModalOpen(false);
+          setTrackInitialQuery("");
+        }}
       />
 
       <Footer />

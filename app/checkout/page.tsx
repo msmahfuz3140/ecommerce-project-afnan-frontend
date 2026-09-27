@@ -20,6 +20,8 @@ import {
   Trash2,
   Receipt,
   AlertCircle,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useCart, CartItem } from "@/context/CartContext";
 import { createOrder, fetchProduct } from "@/lib/api";
@@ -60,6 +62,7 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [placedOrder, setPlacedOrder] = useState<any | null>(null);
+  const [copiedOrderId, setCopiedOrderId] = useState(false);
 
   // Initialize Items
   useEffect(() => {
@@ -218,6 +221,14 @@ function CheckoutContent() {
 
   // ================= ORDER SUCCESS SCREEN =================
   if (placedOrder) {
+    const copyOrderId = (orderId: string) => {
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        navigator.clipboard.writeText(orderId);
+        setCopiedOrderId(true);
+        setTimeout(() => setCopiedOrderId(false), 2500);
+      }
+    };
+
     return (
       <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center font-sans">
         <div className="max-w-xl w-full bg-white rounded-3xl shadow-xl border border-slate-200 p-6 sm:p-8 text-center space-y-5">
@@ -229,12 +240,43 @@ function CheckoutContent() {
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
               🎉 অভিনন্দন! আপনার অর্ডার সফলভাবে গ্রহণ করা হয়েছে
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-3">
-              অর্ডার আইডি: <span className="text-[#df2d4d]">{placedOrder.orderId}</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-md mx-auto">
               পণ্য হাতে পেয়ে দেখে মূল্য পরিশোধ করবেন। আমাদের প্রতিনিধি শীঘ্রই আপনার নম্বরে ({placedOrder.phone}) ফোন করে অর্ডার কনফার্ম করবেন।
             </p>
+          </div>
+
+          {/* Prominent Order ID Box with Copy Button */}
+          <div className="bg-rose-50/80 border border-rose-200 rounded-2xl p-4 max-w-md mx-auto flex items-center justify-between gap-3 shadow-xs">
+            <div className="text-left">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                অর্ডার আইডি (Order ID)
+              </span>
+              <span className="font-mono text-2xl sm:text-3xl font-black text-[#df2d4d]">
+                {placedOrder.orderId}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => copyOrderId(placedOrder.orderId)}
+              className={`px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 ${
+                copiedOrderId
+                  ? "bg-emerald-600 text-white"
+                  : "bg-white hover:bg-slate-100 text-slate-800 border border-slate-300"
+              }`}
+              title="অর্ডার আইডি কপি করুন"
+            >
+              {copiedOrderId ? (
+                <>
+                  <Check className="w-4 h-4 text-white" />
+                  <span>কপি হয়েছে!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 text-slate-600" />
+                  <span>আইডি কপি করুন</span>
+                </>
+              )}
+            </button>
           </div>
 
           {/* Order Summary Receipt */}
@@ -271,7 +313,15 @@ function CheckoutContent() {
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="pt-2 flex flex-col gap-2.5 max-w-md mx-auto">
+            <Link
+              href={`/order-track?id=${encodeURIComponent(placedOrder.orderId)}`}
+              className="py-3 px-5 rounded-2xl bg-slate-900 hover:bg-black text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Truck className="w-4 h-4 text-yellow-400" />
+              <span>অর্ডার লাইভ ট্র্যাক করুন (Live Tracking)</span>
+            </Link>
+
             <a
               href={`https://wa.me/8801356584296?text=${encodeURIComponent(
                 `আসসালামু আলাইকুম, আমি GAXIN MART এ অর্ডার করেছি। আমার অর্ডার আইডি: ${placedOrder.orderId}`
@@ -286,7 +336,7 @@ function CheckoutContent() {
 
             <Link
               href="/"
-              className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-500/25 transition-all text-center flex items-center justify-center"
+              className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-500/25 transition-all text-center flex items-center justify-center cursor-pointer"
             >
               আরও কেনাকাটা করুন
             </Link>
