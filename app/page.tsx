@@ -8,7 +8,6 @@ import { HeroBanner } from "@/components/home/HeroBanner";
 import { CategoryChips } from "@/components/home/CategoryChips";
 import { FlashSale } from "@/components/home/FlashSale";
 import { ProductCard } from "@/components/product/ProductCard";
-import { ProductDetailsModal } from "@/components/product/ProductDetailsModal";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CashOnDeliveryModal } from "@/components/checkout/CashOnDeliveryModal";
 import { TrackOrderModal } from "@/components/track/TrackOrderModal";
@@ -29,7 +28,6 @@ function HomeContent() {
   );
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("latest");
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [trackModalOpen, setTrackModalOpen] = useState(false);
   const [trackInitialQuery, setTrackInitialQuery] = useState("");
 
@@ -104,10 +102,7 @@ function HomeContent() {
 
         {/* Flash Sale Section (Only on main landing) */}
         {!searchQuery && categoryParam === "all" && !isOfferParam && products.length > 0 && (
-          <FlashSale
-            products={products}
-            onOpenDetails={(p) => setSelectedProduct(p)}
-          />
+          <FlashSale products={products} />
         )}
 
         {/* Main Products Grid & Section */}
@@ -201,11 +196,7 @@ function HomeContent() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
               {products.map((product) => (
-                <ProductCard
-                  key={product._id}
-                  product={product}
-                  onOpenDetails={(p) => setSelectedProduct(p)}
-                />
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           )}
@@ -213,11 +204,6 @@ function HomeContent() {
       </main>
 
       {/* Global Modals & Drawers */}
-      <ProductDetailsModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-      />
-
       <CartDrawer />
       <CashOnDeliveryModal />
       <TrackOrderModal

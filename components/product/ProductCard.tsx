@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Zap, Star } from "lucide-react";
 import { Product } from "@/types";
@@ -10,12 +11,13 @@ import { WhatsAppIcon, getWhatsAppUrl } from "@/components/ui/WhatsAppButton";
 
 interface ProductCardProps {
   product: Product;
-  onOpenDetails: (product: Product) => void;
+  onOpenDetails?: (product: Product) => void;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
   const { addToCart, openDirectCheckout } = useCart();
+  const productUrl = `/product/${product.slug || product._id}`;
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -48,7 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails
   return (
     <div className="group bg-white rounded-2xl border border-slate-200/80 hover:border-rose-300 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative">
       {/* Badges */}
-      <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1">
+      <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1 pointer-events-none">
         {discountPercent > 0 && (
           <span className="bg-[#df2d4d] text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow-md">
             -{discountPercent}% ছাড়
@@ -71,10 +73,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails
         <WhatsAppIcon className="w-4 h-4" />
       </button>
 
-      {/* Image Container */}
-      <div
-        onClick={() => onOpenDetails(product)}
-        className="relative w-full pt-[95%] bg-slate-50 cursor-pointer overflow-hidden"
+      {/* Image Container - Links to Details Page */}
+      <Link
+        href={productUrl}
+        className="relative w-full pt-[95%] bg-slate-50 cursor-pointer overflow-hidden block"
       >
         <Image
           src={product.images[0] || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
@@ -84,7 +86,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails
           className="object-cover group-hover:scale-108 transition-transform duration-500 p-2 rounded-2xl"
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
-      </div>
+      </Link>
 
       {/* Details */}
       <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between">
@@ -100,14 +102,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails
             </div>
           </div>
 
-          {/* Title */}
-          <h3
-            onClick={() => onOpenDetails(product)}
-            className="font-bold text-xs sm:text-sm text-slate-800 line-clamp-2 hover:text-[#df2d4d] cursor-pointer transition-colors leading-snug"
+          {/* Title - Links to Details Page */}
+          <Link
+            href={productUrl}
+            className="block font-bold text-xs sm:text-sm text-slate-800 line-clamp-2 hover:text-[#df2d4d] cursor-pointer transition-colors leading-snug"
             title={product.name}
           >
             {product.name}
-          </h3>
+          </Link>
         </div>
 
         {/* Pricing & CTA */}

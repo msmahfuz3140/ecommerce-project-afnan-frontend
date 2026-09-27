@@ -842,10 +842,17 @@ export function getAdminProducts(params: {
   return list;
 }
 
-// Find single product by ID or slug
+// Find single product by ID or slug (case-insensitive and URL-decode safe)
 export function getProductById(identifier: string, isAdmin: boolean = false): ProductItem | null {
+  if (!identifier) return null;
+  const clean = decodeURIComponent(identifier).toLowerCase().trim();
   const list = getAllProducts();
-  const found = list.find((p) => p._id === identifier || p.slug === identifier);
+  const found = list.find(
+    (p) =>
+      p._id.toLowerCase() === clean ||
+      (p.slug || "").toLowerCase() === clean ||
+      (p.slug || "").toLowerCase().replace(/-/g, "") === clean.replace(/-/g, "")
+  );
   if (!found) return null;
 
   if (isAdmin) {

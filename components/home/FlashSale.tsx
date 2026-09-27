@@ -7,7 +7,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 
 interface FlashSaleProps {
   products: Product[];
-  onOpenDetails: (product: Product) => void;
+  onOpenDetails?: (product: Product) => void;
 }
 
 export const FlashSale: React.FC<FlashSaleProps> = ({ products, onOpenDetails }) => {
