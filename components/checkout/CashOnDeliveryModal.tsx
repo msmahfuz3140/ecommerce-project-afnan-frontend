@@ -358,31 +358,31 @@ export const CashOnDeliveryModal: React.FC = () => {
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     ডেলিভারি এরিয়া (Delivery Zone)
                   </label>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="grid grid-cols-2 gap-2 text-[11px] sm:text-xs">
                     <button
                       type="button"
                       onClick={() => handleCityChange("Dhaka (Inside Dhaka)")}
-                      className={`p-2.5 rounded-xl border text-left font-bold transition-all ${
+                      className={`p-2 sm:p-2.5 rounded-xl border text-left font-bold transition-all ${
                         formData.city.includes("Inside")
                           ? "border-[#df2d4d] bg-rose-50 text-[#df2d4d]"
                           : "border-slate-200 hover:border-slate-300 text-slate-700"
                       }`}
                     >
-                      <p>ঢাকা সিটির ভিতরে</p>
-                      <p className="text-[11px] font-normal text-slate-500">ডেলিভারি চার্জ: ৳৭০</p>
+                      <p className="truncate">ঢাকা সিটির ভিতরে</p>
+                      <p className="text-[10px] sm:text-[11px] font-normal text-slate-500">চার্জ: ৳৭০</p>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleCityChange("Outside Dhaka (সারা বাংলাদেশ)")}
-                      className={`p-2.5 rounded-xl border text-left font-bold transition-all ${
+                      className={`p-2 sm:p-2.5 rounded-xl border text-left font-bold transition-all ${
                         formData.city.includes("Outside")
                           ? "border-[#df2d4d] bg-rose-50 text-[#df2d4d]"
                           : "border-slate-200 hover:border-slate-300 text-slate-700"
                       }`}
                     >
-                      <p>ঢাকার বাইরে</p>
-                      <p className="text-[11px] font-normal text-slate-500">ডেলিভারি চার্জ: ৳১৩০</p>
+                      <p className="truncate">ঢাকার বাইরে</p>
+                      <p className="text-[10px] sm:text-[11px] font-normal text-slate-500">চার্জ: ৳১৩০</p>
                     </button>
                   </div>
                 </div>
@@ -422,7 +422,7 @@ export const CashOnDeliveryModal: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white font-black text-sm shadow-xl shadow-rose-500/30 flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-50"
+                className="w-full py-3.5 px-3 sm:px-4 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white font-black text-xs sm:text-sm shadow-xl shadow-rose-500/30 flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-50 text-center"
               >
                 {loading ? (
                   <>
@@ -431,7 +431,7 @@ export const CashOnDeliveryModal: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 fill-yellow-300 text-yellow-300" />
+                    <Sparkles className="w-4 h-4 fill-yellow-300 text-yellow-300 shrink-0" />
                     <span>অর্ডার নিশ্চিত করুন (৳{totalAmount.toLocaleString()} ক্যাশ অন ডেলিভারি)</span>
                   </>
                 )}

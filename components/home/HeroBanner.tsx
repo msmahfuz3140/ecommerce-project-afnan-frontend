@@ -89,29 +89,29 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ banners }) => {
             </div>
 
             {/* Content Overlay */}
-            <div className="relative z-20 h-full flex flex-col justify-center px-6 sm:px-12 md:px-16 max-w-2xl text-white">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#df2d4d] text-white text-xs font-bold w-fit mb-3 shadow-md animate-bounce">
-                <Zap className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
+            <div className="relative z-20 h-full flex flex-col justify-center px-4 sm:px-12 md:px-16 max-w-2xl text-white">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-[#df2d4d] text-white text-[11px] sm:text-xs font-bold w-fit mb-2 sm:mb-3 shadow-md">
+                <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-yellow-300 text-yellow-300" />
                 {banner.badge || "SPECIAL OFFER"}
               </div>
 
-              <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-snug drop-shadow-md">
+              <h2 className="text-lg sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-snug drop-shadow-md line-clamp-2">
                 {banner.title}
               </h2>
 
               {banner.subtitle && (
-                <p className="mt-2 sm:mt-3 text-xs sm:text-sm md:text-base text-slate-200 line-clamp-2 drop-shadow">
+                <p className="mt-1 sm:mt-3 text-xs sm:text-sm md:text-base text-slate-200 line-clamp-2 drop-shadow">
                   {banner.subtitle}
                 </p>
               )}
 
-              <div className="mt-4 sm:mt-6 flex items-center gap-3">
+              <div className="mt-3 sm:mt-6 flex items-center gap-3">
                 <Link
                   href={banner.link || "/?category=all"}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/30 transition-all hover:gap-3"
+                  className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-full bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/30 transition-all hover:gap-3"
                 >
                   কেনাকাটা করুন
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </Link>
                 <span className="hidden sm:inline-block text-xs font-medium text-emerald-400 bg-emerald-950/80 px-3 py-1.5 rounded-full border border-emerald-500/30">
                   ✓ ক্যাশ অন ডেলিভারি সুবিধা
@@ -126,17 +126,17 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ banners }) => {
           <>
             <button
               onClick={prevSlide}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[#df2d4d] text-white backdrop-blur flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+              className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 hover:bg-[#df2d4d] text-white backdrop-blur flex items-center justify-center transition-all opacity-75 sm:opacity-0 sm:group-hover:opacity-100 cursor-pointer"
               aria-label="Previous Slide"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[#df2d4d] text-white backdrop-blur flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 hover:bg-[#df2d4d] text-white backdrop-blur flex items-center justify-center transition-all opacity-75 sm:opacity-0 sm:group-hover:opacity-100 cursor-pointer"
               aria-label="Next Slide"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             {/* Dots */}

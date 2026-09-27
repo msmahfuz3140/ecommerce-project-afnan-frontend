@@ -15,10 +15,10 @@ import { WhatsAppIcon, getWhatsAppUrl, WHATSAPP_NUMBER } from "@/components/ui/W
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-slate-950 text-slate-300 pt-14 pb-8 border-t border-slate-800">
+    <footer className="bg-slate-950 text-slate-300 pt-10 sm:pt-14 pb-24 md:pb-8 border-t border-slate-800">
       {/* 1. Value Proposition Features */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 rounded-2xl bg-slate-900/80 border border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6 p-4 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-[#df2d4d] flex items-center justify-center shrink-0">
               <Truck className="w-6 h-6" />

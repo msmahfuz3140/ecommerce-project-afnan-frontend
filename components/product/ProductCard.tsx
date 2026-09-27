@@ -89,23 +89,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </Link>
 
       {/* Details */}
-      <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between">
+      <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between">
         <div>
           {/* Category & Rating */}
-          <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1.5">
-            <span className="font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">
+          <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500 mb-1">
+            <span className="font-semibold text-rose-600 bg-rose-50 px-1.5 sm:px-2 py-0.5 rounded-md truncate max-w-[100px] sm:max-w-none">
               {categoryLabel[product.category] || product.category}
             </span>
-            <div className="flex items-center gap-1 text-amber-500 font-bold">
+            <div className="flex items-center gap-0.5 sm:gap-1 text-amber-500 font-bold shrink-0">
               <Star className="w-3 h-3 fill-amber-400" />
               <span>4.9</span>
             </div>
           </div>
 
-          {/* Title - Links to Details Page */}
+          {/* Title - Fixed height so all cards align perfectly */}
           <Link
             href={productUrl}
-            className="block font-bold text-xs sm:text-sm text-slate-800 line-clamp-2 hover:text-[#df2d4d] cursor-pointer transition-colors leading-snug"
+            className="block font-bold text-xs sm:text-sm text-slate-800 line-clamp-2 h-8 sm:h-10 hover:text-[#df2d4d] cursor-pointer transition-colors leading-tight sm:leading-snug"
             title={product.name}
           >
             {product.name}
@@ -113,47 +113,47 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
 
         {/* Pricing & CTA */}
-        <div className="mt-3 pt-2 border-t border-slate-100">
-          <div className="flex items-baseline gap-2">
-            <span className="text-base sm:text-lg font-black text-slate-900">
+        <div className="mt-2 sm:mt-3 pt-2 border-t border-slate-100">
+          <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
+            <span className="text-sm sm:text-lg font-black text-slate-900">
               ৳{product.sellPrice.toLocaleString()}
             </span>
             {product.originalPrice > product.sellPrice && (
-              <span className="text-xs text-slate-400 line-through font-medium">
+              <span className="text-[10px] sm:text-xs text-slate-400 line-through font-medium">
                 ৳{product.originalPrice.toLocaleString()}
               </span>
             )}
           </div>
 
           {/* Action Buttons: Order, WhatsApp, Cart */}
-          <div className="mt-2.5 flex items-center gap-1.5">
+          <div className="mt-2 flex items-center gap-1 sm:gap-1.5">
             {/* 1-Click Cash on Delivery Order Button */}
             <button
               onClick={handleBuyNow}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs font-bold shadow-md shadow-rose-500/20 active:scale-97 transition-all cursor-pointer"
+              className="flex-1 min-w-0 flex items-center justify-center gap-1 py-1.5 sm:py-2 px-1.5 sm:px-2.5 rounded-xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-[11px] sm:text-xs font-black shadow-md shadow-rose-500/20 active:scale-95 transition-all cursor-pointer"
             >
-              <Zap className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
-              অর্ডার করুন
+              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-yellow-300 text-yellow-300 shrink-0" />
+              <span className="truncate">অর্ডার করুন</span>
             </button>
 
             {/* Direct WhatsApp Button */}
             <button
               onClick={handleWhatsApp}
-              className="p-2 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-white transition-all cursor-pointer border border-[#25D366]/20"
+              className="p-1.5 sm:p-2 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-white transition-all cursor-pointer border border-[#25D366]/20 shrink-0"
               title="WhatsApp এ অর্ডার বা প্রশ্ন করুন"
               aria-label="WhatsApp Order"
             >
-              <WhatsAppIcon className="w-4 h-4" />
+              <WhatsAppIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
             {/* Add to Cart Icon Button */}
             <button
               onClick={() => addToCart(product, 1)}
-              className="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-slate-700 hover:text-[#df2d4d] transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-slate-700 hover:text-[#df2d4d] transition-colors cursor-pointer shrink-0"
               title="কার্টে যোগ করুন"
               aria-label="Add to Cart"
             >
-              <ShoppingCart className="w-4 h-4" />
+              <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>

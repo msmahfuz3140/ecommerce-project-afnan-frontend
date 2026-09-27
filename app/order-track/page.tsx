@@ -140,19 +140,19 @@ function OrderTrackContent() {
 
           {/* Search Box */}
           <form onSubmit={handleSearch} className="max-w-xl mx-auto pt-2">
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 required
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="অর্ডার আইডি (#GX-...) অথবা মোবাইল নম্বর (013...)"
-                className="flex-1 px-4 py-3 rounded-2xl border-0 focus:ring-2 focus:ring-[#df2d4d] text-slate-900 text-xs sm:text-sm shadow-md bg-white outline-none"
+                className="flex-1 px-4 py-2.5 sm:py-3 rounded-2xl border-0 focus:ring-2 focus:ring-[#df2d4d] text-slate-900 text-xs sm:text-sm shadow-md bg-white outline-none"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-500/30 transition-all flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-50"
+                className="px-6 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-500/30 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer disabled:opacity-50"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                 <span>ট্র্যাক করুন</span>
@@ -275,14 +275,14 @@ function OrderTrackContent() {
 
                   {/* Stepper */}
                   <div className="py-2">
-                    <div className="grid grid-cols-4 gap-2 text-center">
+                    <div className="grid grid-cols-4 gap-1 sm:gap-2 text-center">
                       {statusSteps.map((step) => {
                         const StepIcon = step.icon;
                         const state = getStepStatus(ord.status as OrderStatus, step.key);
                         return (
                           <div key={step.key} className="flex flex-col items-center">
                             <div
-                              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-2 transition-all shadow-md ${
+                              className={`w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-1.5 transition-all shadow-md ${
                                 state === "completed"
                                   ? "bg-emerald-600 text-white shadow-emerald-500/20"
                                   : state === "current"
@@ -290,10 +290,10 @@ function OrderTrackContent() {
                                   : "bg-slate-100 text-slate-400 border border-slate-200"
                               }`}
                             >
-                              <StepIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                              <StepIcon className="w-4 h-4 sm:w-6 sm:h-6" />
                             </div>
                             <span
-                              className={`text-xs font-bold ${
+                              className={`text-[9px] sm:text-xs font-bold leading-tight ${
                                 state === "current"
                                   ? "text-[#df2d4d]"
                                   : state === "completed"
@@ -303,7 +303,7 @@ function OrderTrackContent() {
                             >
                               {step.label}
                             </span>
-                            <span className="text-[10px] text-slate-400 hidden sm:block mt-0.5">
+                            <span className="text-[8px] sm:text-[10px] text-slate-400 hidden sm:block mt-0.5">
                               {step.desc}
                             </span>
                           </div>

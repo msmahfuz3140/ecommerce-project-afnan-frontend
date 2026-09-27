@@ -31,14 +31,14 @@ export const FloatingWhatsAppButton: React.FC = () => {
   const [showTooltip, setShowTooltip] = useState(true);
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
+    <div className="fixed bottom-18 sm:bottom-6 right-3.5 sm:right-6 z-40 sm:z-50 flex items-center gap-3">
       {/* Pop-up Hint Tooltip */}
       {showTooltip && (
         <div className="hidden sm:flex items-center gap-2 bg-slate-900 text-white text-xs font-bold py-2 px-3.5 rounded-2xl shadow-xl border border-slate-700 animate-fade-in">
           <span>WhatsApp এ দ্রুত অর্ডার / চ্যাট করুন: 01356584296</span>
           <button
             onClick={() => setShowTooltip(false)}
-            className="text-slate-400 hover:text-white p-0.5 rounded"
+            className="text-slate-400 hover:text-white p-0.5 rounded cursor-pointer"
             aria-label="Close tooltip"
           >
             <X className="w-3.5 h-3.5" />
@@ -52,12 +52,12 @@ export const FloatingWhatsAppButton: React.FC = () => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat on WhatsApp"
-        className="relative group w-14 h-14 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center shadow-2xl shadow-emerald-600/40 hover:scale-108 transition-all duration-300 cursor-pointer"
+        className="relative group w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center shadow-2xl shadow-emerald-600/40 hover:scale-108 transition-all duration-300 cursor-pointer"
       >
-        <WhatsAppIcon className="w-8 h-8" />
-        <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+        <WhatsAppIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+        <span className="absolute -top-1 -right-1 flex h-3 w-3 sm:h-3.5 sm:w-3.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-400"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 bg-emerald-400"></span>
         </span>
       </a>
     </div>

@@ -140,19 +140,19 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
         <div className="p-4 sm:p-6 overflow-y-auto space-y-4">
           {/* Search Form */}
           <form onSubmit={handleTrack} className="space-y-2">
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 required
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="মোবাইল নম্বর (013...) অথবা অর্ডার আইডি (#GX-...) দিন"
-                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:border-[#df2d4d] focus:ring-2 focus:ring-rose-100 focus:outline-none text-xs sm:text-sm text-slate-900 bg-white"
+                className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-[#df2d4d] focus:ring-2 focus:ring-rose-100 focus:outline-none text-xs sm:text-sm text-slate-900 bg-white"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-500/20 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-500/20 transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-50"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                 <span>ট্র্যাক করুন</span>
@@ -278,7 +278,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                         return (
                           <div key={step.key} className="flex flex-col items-center">
                             <div
-                              className={`w-9 h-9 rounded-full flex items-center justify-center mb-1.5 transition-all shadow-sm ${
+                              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center mb-1 transition-all shadow-sm ${
                                 state === "completed"
                                   ? "bg-emerald-600 text-white"
                                   : state === "current"
@@ -286,10 +286,10 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                                   : "bg-slate-100 text-slate-400 border border-slate-200"
                               }`}
                             >
-                              <StepIcon className="w-4 h-4" />
+                              <StepIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </div>
                             <span
-                              className={`font-bold ${
+                              className={`font-bold text-[9px] sm:text-[11px] leading-tight ${
                                 state === "current"
                                   ? "text-[#df2d4d]"
                                   : state === "completed"
@@ -299,7 +299,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                             >
                               {step.label}
                             </span>
-                            <span className="text-[9px] text-slate-400 hidden sm:block mt-0.5">
+                            <span className="text-[8px] sm:text-[9px] text-slate-400 hidden sm:block mt-0.5">
                               {step.desc}
                             </span>
                           </div>
