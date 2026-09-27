@@ -303,7 +303,7 @@ export default function AdminOffersPage() {
                     rows={3}
                     value={formData.noticeText}
                     onChange={(e) => setFormData({ ...formData, noticeText: e.target.value })}
-                    placeholder="যেমন: ⭐ AuraMart স্পেশাল অফার! সারা বাংলাদেশে ফ্রি ক্যাশ অন ডেলিভারি সুবিধা..."
+                    placeholder="যেমন: ⭐ GAXIN MART স্পেশাল অফার! সারা বাংলাদেশে দ্রুত ক্যাশ অন ডেলিভারি সুবিধা। WhatsApp: 01356584296..."
                     className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs text-slate-900"
                   />
                 </div>

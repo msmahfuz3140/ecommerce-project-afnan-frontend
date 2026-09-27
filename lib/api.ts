@@ -2,7 +2,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
 
 const getAdminToken = (): string | null => {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("auramart_admin_token");
+  return localStorage.getItem("gaxinmart_admin_token") || localStorage.getItem("auramart_admin_token");
 };
 
 const authHeaders = (isFormData: boolean = false) => {
@@ -32,7 +32,10 @@ export const fetchProducts = async (params: {
     if (params.isOffer) query.append("isOffer", "true");
     if (params.sort) query.append("sort", params.sort);
 
-    const res = await fetch(`${API_URL}/products?${query.toString()}`, { cache: "no-store" });
+    const res = await fetch(`${API_URL}/products?${query.toString()}`, {
+      cache: "no-store",
+      headers: authHeaders(),
+    });
     if (!res.ok) throw new Error("Failed to fetch products");
     return await res.json();
   } catch (error) {

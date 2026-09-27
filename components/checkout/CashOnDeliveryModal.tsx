@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder } from "@/lib/api";
+import { WhatsAppIcon, WHATSAPP_NUMBER } from "@/components/ui/WhatsAppButton";
 
 export const CashOnDeliveryModal: React.FC = () => {
   const {
@@ -185,10 +186,22 @@ export const CashOnDeliveryModal: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center max-w-xs mx-auto">
+              <div className="pt-2 flex flex-col gap-2.5 max-w-sm mx-auto">
+                <a
+                  href={`https://wa.me/8801356584296?text=${encodeURIComponent(
+                    `আসসালামু আলাইকুম, আমি GAXIN MART এ অর্ডার করেছি। আমার অর্ডার আইডি: ${placedOrder.orderId}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-4 h-4" />
+                  <span>WhatsApp এ অর্ডার আপডেট নিন ({WHATSAPP_NUMBER})</span>
+                </a>
+
                 <button
                   onClick={handleClose}
-                  className="w-full py-3 px-4 rounded-xl bg-[#df2d4d] hover:bg-[#b1001f] text-white text-xs font-bold shadow-md transition-colors"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#df2d4d] hover:bg-[#b1001f] text-white text-xs font-bold shadow-md transition-colors cursor-pointer"
                 >
                   আরও কেনাকাটা করুন
                 </button>

@@ -3,14 +3,24 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { X, Zap, ShoppingCart, ShieldCheck, Truck, RotateCcw, CheckCircle2 } from "lucide-react";
+import { X, Zap, ShoppingCart, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
+import { WhatsAppIcon, getWhatsAppUrl, WHATSAPP_NUMBER } from "@/components/ui/WhatsAppButton";
 
 interface ProductDetailsModalProps {
   product: Product | null;
   onClose: () => void;
 }
+
+const CATEGORY_NAMES: Record<string, string> = {
+  "mens-fashion": "Men's Fashion (পুরুষদের ফ্যাশন)",
+  "womens-fashion": "Women's Fashion (মহিলাদের ফ্যাশন)",
+  "home-lifestyle": "Home & Lifestyle (হোম ও লাইফস্টাইল)",
+  "gadgets-electronics": "Gadgets & Electronics (গ্যাজেটস ও ইলেকট্রনিক্স)",
+  "others": "Other's (অন্যান্য)",
+  "kids-zone": "Kids Zone (কিডস জোন)",
+};
 
 export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
   product,
@@ -45,7 +55,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-[#df2d4d] flex items-center justify-center transition-colors"
+          className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-[#df2d4d] flex items-center justify-center transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -106,16 +116,16 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
           <div className="flex flex-col justify-between">
             <div className="space-y-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md">
-                  {product.category}
+                <span className="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md">
+                  {CATEGORY_NAMES[product.category] || product.category}
                 </span>
                 <h2 className="mt-2 text-lg sm:text-2xl font-black text-slate-900 leading-tight">
                   {product.name}
                 </h2>
               </div>
 
-              {/* Price */}
-              <div className="flex items-baseline gap-3">
+              {/* Price & In-Stock Status (Customer never sees exact stock count) */}
+              <div className="flex flex-wrap items-baseline gap-3">
                 <span className="text-2xl sm:text-3xl font-black text-[#df2d4d]">
                   ৳{product.sellPrice.toLocaleString()}
                 </span>
@@ -124,9 +134,16 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
                     ৳{product.originalPrice.toLocaleString()}
                   </span>
                 )}
-                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
-                  ইন স্টক ({product.stock} টি অবশিষ্ট)
-                </span>
+                {product.inStock !== false ? (
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    স্টকে রয়েছে (In Stock)
+                  </span>
+                ) : (
+                  <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+                    স্টক শেষ (Out of Stock)
+                  </span>
+                )}
               </div>
 
               {/* Description */}
@@ -157,14 +174,14 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
                 <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-white">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="px-3 py-1.5 hover:bg-slate-100 text-slate-700 font-bold"
+                    className="px-3 py-1.5 hover:bg-slate-100 text-slate-700 font-bold cursor-pointer"
                   >
                     -
                   </button>
                   <span className="px-4 py-1.5 font-bold text-sm text-slate-900">{quantity}</span>
                   <button
                     onClick={() => setQuantity((q) => q + 1)}
-                    className="px-3 py-1.5 hover:bg-slate-100 text-slate-700 font-bold"
+                    className="px-3 py-1.5 hover:bg-slate-100 text-slate-700 font-bold cursor-pointer"
                   >
                     +
                   </button>
@@ -172,23 +189,36 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
               </div>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={handleBuyNow}
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white font-extrabold text-sm shadow-lg shadow-rose-500/30 active:scale-97 transition-all"
-              >
-                <Zap className="w-4 h-4 fill-yellow-300 text-yellow-300" />
-                এখনই অর্ডার করুন (ক্যাশ অন ডেলিভারি)
-              </button>
+            {/* CTA Buttons & WhatsApp Direct Message */}
+            <div className="mt-6 pt-4 border-t border-slate-100 space-y-2.5">
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                <button
+                  onClick={handleBuyNow}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-rose-500/30 active:scale-97 transition-all cursor-pointer"
+                >
+                  <Zap className="w-4 h-4 fill-yellow-300 text-yellow-300" />
+                  এখনই অর্ডার করুন (ক্যাশ অন ডেলিভারি)
+                </button>
 
-              <button
-                onClick={handleAddToCart}
-                className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl border-2 border-rose-300 hover:bg-rose-50 text-slate-800 font-bold text-sm transition-colors"
+                <button
+                  onClick={handleAddToCart}
+                  className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border-2 border-rose-300 hover:bg-rose-50 text-slate-800 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
+                >
+                  <ShoppingCart className="w-4 h-4 text-[#df2d4d]" />
+                  কার্টে যোগ করুন
+                </button>
+              </div>
+
+              {/* Direct WhatsApp Order Button */}
+              <a
+                href={getWhatsAppUrl(product.name, product.sellPrice)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 active:scale-98 transition-all cursor-pointer"
               >
-                <ShoppingCart className="w-4 h-4 text-[#df2d4d]" />
-                কার্টে যোগ করুন
-              </button>
+                <WhatsAppIcon className="w-4 h-4" />
+                <span>WhatsApp এ সরাসরি মেসেজ / অর্ডার করুন ({WHATSAPP_NUMBER})</span>
+              </a>
             </div>
           </div>
         </div>

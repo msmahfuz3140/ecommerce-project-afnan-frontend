@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -32,7 +33,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
 
-    const token = localStorage.getItem("auramart_admin_token");
+    const token =
+      localStorage.getItem("gaxinmart_admin_token") ||
+      localStorage.getItem("auramart_admin_token");
     if (!token) {
       router.push("/admin/login");
     } else {
@@ -41,6 +44,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [pathname, isLoginPage, router]);
 
   const handleLogout = () => {
+    localStorage.removeItem("gaxinmart_admin_token");
+    localStorage.removeItem("gaxinmart_admin_user");
     localStorage.removeItem("auramart_admin_token");
     localStorage.removeItem("auramart_admin_user");
     router.push("/admin/login");
@@ -91,12 +96,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="hidden md:flex flex-col w-64 bg-slate-900 text-white shrink-0 border-r border-slate-800">
         {/* Brand */}
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#df2d4d] to-[#ff4d6d] flex items-center justify-center text-white shadow-md shadow-rose-500/20 font-bold">
-            <ShoppingBag className="w-5 h-5" />
+          <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-black border border-slate-700 shrink-0">
+            <Image src="/gaxin-mart-logo.jpg" alt="Logo" fill className="object-cover" />
           </div>
           <div>
             <h1 className="font-black text-lg tracking-tight text-white leading-tight">
-              Aura<span className="text-[#df2d4d]">Mart</span>
+              GAXIN <span className="text-[#df2d4d]">MART</span>
             </h1>
             <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">
               Admin Control Panel
@@ -169,10 +174,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Mobile Top Navbar */}
       <div className="md:hidden bg-slate-900 text-white p-4 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#df2d4d] flex items-center justify-center text-white">
-            <ShoppingBag className="w-4 h-4" />
+          <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-black border border-slate-700 shrink-0">
+            <Image src="/gaxin-mart-logo.jpg" alt="Logo" fill className="object-cover" />
           </div>
-          <span className="font-bold text-base">AuraMart Admin</span>
+          <span className="font-bold text-base">GAXIN MART Admin</span>
         </div>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -188,7 +193,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="w-4/5 max-w-xs bg-slate-900 text-white h-full p-5 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <span className="font-black text-lg">AuraMart Admin</span>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-7 h-7 rounded-lg overflow-hidden bg-black border border-slate-700 shrink-0">
+                    <Image src="/gaxin-mart-logo.jpg" alt="Logo" fill className="object-cover" />
+                  </div>
+                  <span className="font-black text-base">GAXIN MART Admin</span>
+                </div>
                 <button onClick={() => setSidebarOpen(false)}>
                   <X className="w-5 h-5 text-slate-400" />
                 </button>

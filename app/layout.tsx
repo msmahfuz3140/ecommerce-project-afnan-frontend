@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
+import { FloatingWhatsAppButton } from "@/components/ui/WhatsAppButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,9 +15,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AuraMart - Modern Lifestyle, Tech & Beauty | Cash on Delivery",
+  title: "GAXIN MART - Best Online Shopping in Bangladesh | Cash on Delivery",
   description:
-    "বাংলাদেশে দ্রুত ক্যাশ অন ডেলিভারি (Cash on Delivery) সুবিধা সহ সেরা মূল্যে ইলেকট্রনিক্স, কসমেটিক্স এবং ফ্যাশন পণ্য কিনুন।",
+    "GAXIN MART - সারা বাংলাদেশে ক্যাশ অন ডেলিভারি (Cash on Delivery) সুবিধা সহ সেরা দামে Men's Fashion, Women's Fashion, Gadgets & Electronics, Home & Lifestyle পণ্য কিনুন। হটলাইন / WhatsApp: 01356584296",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/gaxin-mart-logo.jpg",
+  },
 };
 
 export default function RootLayout({
@@ -30,7 +36,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 selection:bg-rose-500 selection:text-white">
-        <CartProvider>{children}</CartProvider>
+        <CartProvider>
+          {children}
+          <FloatingWhatsAppButton />
+        </CartProvider>
       </body>
     </html>
   );

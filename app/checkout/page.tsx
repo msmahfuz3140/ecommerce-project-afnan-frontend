@@ -24,6 +24,7 @@ import {
 import { useCart, CartItem } from "@/context/CartContext";
 import { createOrder, fetchProduct } from "@/lib/api";
 import { Product } from "@/types";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppButton";
 
 function CheckoutContent() {
   const router = useRouter();
@@ -271,9 +272,21 @@ function CheckoutContent() {
 
           {/* Action Buttons */}
           <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href={`https://wa.me/8801356584296?text=${encodeURIComponent(
+                `আসসালামু আলাইকুম, আমি GAXIN MART এ অর্ডার করেছি। আমার অর্ডার আইডি: ${placedOrder.orderId}`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="py-3 px-5 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <WhatsAppIcon className="w-4 h-4" />
+              <span>WhatsApp এ অর্ডার আপডেট নিন (01356584296)</span>
+            </a>
+
             <Link
               href="/"
-              className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-500/25 transition-all text-center"
+              className="py-3 px-6 rounded-2xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-500/25 transition-all text-center flex items-center justify-center"
             >
               আরও কেনাকাটা করুন
             </Link>
@@ -294,11 +307,11 @@ function CheckoutContent() {
           </Link>
 
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#df2d4d] to-[#ff4d6d] flex items-center justify-center text-white font-bold">
-              <ShoppingBag className="w-4 h-4" />
+            <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-black border border-slate-700">
+              <Image src="/gaxin-mart-logo.jpg" alt="Logo" fill className="object-cover" />
             </div>
             <span className="font-black text-lg text-slate-900 tracking-tight">
-              Aura<span className="text-[#df2d4d]">Mart</span>
+              GAXIN <span className="text-[#df2d4d]">MART</span>
             </span>
           </Link>
 

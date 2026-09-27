@@ -3,9 +3,9 @@ export interface Product {
   name: string;
   slug: string;
   description: string;
-  category: "electronics" | "cosmetics" | "fashion";
+  category: string;
   subCategory?: string;
-  buyPrice: number;
+  buyPrice?: number;
   sellPrice: number;
   originalPrice: number;
   stock: number;

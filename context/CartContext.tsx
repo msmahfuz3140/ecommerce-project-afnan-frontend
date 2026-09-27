@@ -42,11 +42,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Load cart & directCheckoutItem from localStorage
   useEffect(() => {
     try {
-      const savedCart = localStorage.getItem("auramart_cart");
+      const savedCart =
+        localStorage.getItem("gaxinmart_cart") ||
+        localStorage.getItem("auramart_cart");
       if (savedCart) {
         setCart(JSON.parse(savedCart));
       }
-      const savedDirect = localStorage.getItem("auramart_direct_checkout");
+      const savedDirect =
+        localStorage.getItem("gaxinmart_direct_checkout") ||
+        localStorage.getItem("auramart_direct_checkout");
       if (savedDirect) {
         setDirectCheckoutItem(JSON.parse(savedDirect));
       }
@@ -60,7 +64,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (mounted) {
       try {
-        localStorage.setItem("auramart_cart", JSON.stringify(cart));
+        localStorage.setItem("gaxinmart_cart", JSON.stringify(cart));
       } catch (e) {
         console.error("Failed to save cart", e);
       }
@@ -72,8 +76,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (mounted) {
       try {
         if (directCheckoutItem) {
-          localStorage.setItem("auramart_direct_checkout", JSON.stringify(directCheckoutItem));
+          localStorage.setItem("gaxinmart_direct_checkout", JSON.stringify(directCheckoutItem));
         } else {
+          localStorage.removeItem("gaxinmart_direct_checkout");
           localStorage.removeItem("auramart_direct_checkout");
         }
       } catch (e) {
@@ -138,7 +143,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const item = { product, quantity };
     setDirectCheckoutItem(item);
     try {
-      localStorage.setItem("auramart_direct_checkout", JSON.stringify(item));
+      localStorage.setItem("gaxinmart_direct_checkout", JSON.stringify(item));
     } catch (e) {}
   };
 
@@ -146,6 +151,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setDirectCheckoutItem(null);
     setIsCheckoutOpen(false);
     try {
+      localStorage.removeItem("gaxinmart_direct_checkout");
       localStorage.removeItem("auramart_direct_checkout");
     } catch (e) {}
   };

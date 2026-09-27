@@ -17,32 +17,32 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ banners }) => {
   const defaultBanners = [
     {
       _id: "default-1",
-      title: "গ্র্যান্ড সিজনাল অফার ও হট ডিলস",
-      subtitle: "ইলেকট্রনিক্স, কসমেটিক্স এবং প্রিমিয়াম ফ্যাশনে ৩৫% পর্যন্ত বিশাল ছাড়!",
+      title: "GAXIN MART গ্র্যান্ড সেল — ৩৫% পর্যন্ত ছাড়!",
+      subtitle: "Men's Fashion, Women's Fashion, Gadgets & Lifestyle পণ্যে সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।",
       bannerImage:
         "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80",
-      badge: "HOT DEALS",
+      badge: "GAXIN SPECIAL",
       link: "/?category=all",
       discountPercentage: 35,
     },
     {
       _id: "default-2",
-      title: "লেটেস্ট স্মার্ট গ্যাজেট ও অডিও গিয়ার",
-      subtitle: "১০০% অরিজিনাল ব্র্যান্ড ওয়ারেন্টি সহ দেশব্যাপী ক্যাশ অন ডেলিভারি।",
+      title: "লেটেস্ট স্মার্ট গ্যাজেটস ও ওয়্যারলেস অডিও",
+      subtitle: "১০০% অরিজিনাল ব্র্যান্ড কোয়ালিটি ওয়ারেন্টি সহ দ্রুত ডেলিভারি সুবিধা। WhatsApp: 01356584296",
       bannerImage:
         "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1600&q=80",
-      badge: "ELECTRONICS SPECIAL",
-      link: "/?category=electronics",
+      badge: "GADGETS FEST",
+      link: "/?category=gadgets-electronics",
       discountPercentage: 25,
     },
     {
       _id: "default-3",
-      title: "প্রিমিয়াম স্কিনকেয়ার ও লাক্সারি পারফিউম",
-      subtitle: "ত্বকের বিশেষ যত্নে সেরা সব অথেনটিক বিউটি কেয়ার প্রোডাক্ট।",
+      title: "এক্সক্লুসিভ ফ্যাশন ও ট্রেন্ডি লাইফস্টাইল কালেকশন",
+      subtitle: "পুরুষ ও নারীদের প্রিমিয়াম পোশাক, ব্যাগ ও এক্সেসরিজে স্পেশাল অফার!",
       bannerImage:
-        "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1600&q=80",
-      badge: "BEAUTY & CARE",
-      link: "/?category=cosmetics",
+        "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80",
+      badge: "FASHION & LIVING",
+      link: "/?category=mens-fashion",
       discountPercentage: 30,
     },
   ];

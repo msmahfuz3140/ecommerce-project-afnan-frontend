@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ShoppingCart, Zap, Star } from "lucide-react";
 import { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
+import { WhatsAppIcon, getWhatsAppUrl } from "@/components/ui/WhatsAppButton";
 
 interface ProductCardProps {
   product: Product;
@@ -22,19 +23,30 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails
     router.push("/checkout");
   };
 
+  const handleWhatsApp = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(getWhatsAppUrl(product.name, product.sellPrice), "_blank");
+  };
+
   const discountPercent =
     product.originalPrice > product.sellPrice
       ? Math.round(((product.originalPrice - product.sellPrice) / product.originalPrice) * 100)
       : 0;
 
   const categoryLabel: Record<string, string> = {
-    electronics: "ইলেকট্রনিক্স",
-    cosmetics: "কসমেটিক্স",
-    fashion: "ফ্যাশন",
+    "mens-fashion": "Men's Fashion",
+    "womens-fashion": "Women's Fashion",
+    "home-lifestyle": "Home & Living",
+    "gadgets-electronics": "Gadgets",
+    "others": "Other's",
+    "kids-zone": "Kids Zone",
+    "electronics": "Gadgets",
+    "cosmetics": "Beauty",
+    "fashion": "Fashion",
   };
 
   return (
-    <div className="group bg-white rounded-2xl border border-slate-200/80 hover:border-rose-300 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative">
+    <div className="group bg-white rounded-2xl border border-slate-200/80 hover:border-rose-300 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative">
       {/* Badges */}
       <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1">
         {discountPercent > 0 && (
@@ -43,11 +55,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails
           </span>
         )}
         {product.offerBadge && (
-          <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+          <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
             {product.offerBadge}
           </span>
         )}
       </div>
+
+      {/* WhatsApp Quick Float Icon on Image */}
+      <button
+        onClick={handleWhatsApp}
+        className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center shadow-md opacity-90 hover:opacity-100 hover:scale-110 transition-all cursor-pointer"
+        title="WhatsApp এ সরাসরি মেসেজ করুন"
+        aria-label="Chat on WhatsApp"
+      >
+        <WhatsAppIcon className="w-4 h-4" />
+      </button>
 
       {/* Image Container */}
       <div
@@ -101,21 +123,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails
             )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="mt-2.5 grid grid-cols-5 gap-1.5">
+          {/* Action Buttons: Order, WhatsApp, Cart */}
+          <div className="mt-2.5 flex items-center gap-1.5">
             {/* 1-Click Cash on Delivery Order Button */}
             <button
               onClick={handleBuyNow}
-              className="col-span-4 flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs font-bold shadow-md shadow-rose-500/20 active:scale-97 transition-all cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-xs font-bold shadow-md shadow-rose-500/20 active:scale-97 transition-all cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
               অর্ডার করুন
             </button>
 
+            {/* Direct WhatsApp Button */}
+            <button
+              onClick={handleWhatsApp}
+              className="p-2 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-white transition-all cursor-pointer border border-[#25D366]/20"
+              title="WhatsApp এ অর্ডার বা প্রশ্ন করুন"
+              aria-label="WhatsApp Order"
+            >
+              <WhatsAppIcon className="w-4 h-4" />
+            </button>
+
             {/* Add to Cart Icon Button */}
             <button
               onClick={() => addToCart(product, 1)}
-              className="col-span-1 flex items-center justify-center py-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-slate-700 hover:text-[#df2d4d] transition-colors"
+              className="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-slate-700 hover:text-[#df2d4d] transition-colors cursor-pointer"
               title="কার্টে যোগ করুন"
               aria-label="Add to Cart"
             >

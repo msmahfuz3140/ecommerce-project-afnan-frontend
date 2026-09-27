@@ -25,7 +25,7 @@ function HomeContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [banners, setBanners] = useState<Offer[]>([]);
   const [noticeText, setNoticeText] = useState(
-    "⭐ AuraMart স্পেশাল অফার! সারা বাংলাদেশে ক্যাশ অন ডেলিভারি (Cash on Delivery) সুবিধা। ১০০% অরিজিনাল ব্র্যান্ড প্রোডাক্ট।"
+    "⭐ GAXIN MART স্পেশাল অফার! সারা বাংলাদেশে ক্যাশ অন ডেলিভারি (Cash on Delivery) সুবিধা। WhatsApp অর্ডার ও হেল্পলাইন: 01356584296"
   );
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("latest");
@@ -112,20 +112,35 @@ function HomeContent() {
                     <Sparkles className="w-5 h-5 text-[#df2d4d]" />
                     বিশেষ অফারের পণ্যসমূহ (Hot Offers)
                   </>
-                ) : categoryParam === "electronics" ? (
+                ) : categoryParam === "mens-fashion" ? (
                   <>
-                    <Zap className="w-5 h-5 text-blue-600" />
-                    ইলেকট্রনিক্স ও স্মার্ট গ্যাজেটস (Electronics)
+                    <Shirt className="w-5 h-5 text-blue-600" />
+                    পুরুষদের ফ্যাশন (Men&apos;s Fashion)
                   </>
-                ) : categoryParam === "cosmetics" ? (
+                ) : categoryParam === "womens-fashion" ? (
                   <>
                     <Sparkles className="w-5 h-5 text-pink-600" />
-                    স্কিনকেয়ার ও কসমেটিক্স (Cosmetics & Beauty)
+                    মহিলাদের ফ্যাশন (Women&apos;s Fashion)
                   </>
-                ) : categoryParam === "fashion" ? (
+                ) : categoryParam === "home-lifestyle" ? (
                   <>
-                    <Shirt className="w-5 h-5 text-amber-600" />
-                    ফ্যাশন ও লাইফস্টাইল (Fashion & Lifestyle)
+                    <Layers className="w-5 h-5 text-amber-600" />
+                    হোম ও লাইফস্টাইল (Home & Lifestyle)
+                  </>
+                ) : categoryParam === "gadgets-electronics" ? (
+                  <>
+                    <Zap className="w-5 h-5 text-cyan-600" />
+                    গ্যাজেটস ও ইলেকট্রনিক্স (Gadgets & Electronics)
+                  </>
+                ) : categoryParam === "others" ? (
+                  <>
+                    <Layers className="w-5 h-5 text-emerald-600" />
+                    অন্যান্য সামগ্রী (Other&apos;s)
+                  </>
+                ) : categoryParam === "kids-zone" ? (
+                  <>
+                    <Sparkles className="w-5 h-5 text-violet-600" />
+                    কিডস জোন (Kids Zone)
                   </>
                 ) : (
                   <>
@@ -208,7 +223,7 @@ export default function HomePage() {
       fallback={
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-400 gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-[#df2d4d]" />
-          <p className="text-xs font-semibold">AuraMart লোড হচ্ছে...</p>
+          <p className="text-xs font-semibold">GAXIN MART লোড হচ্ছে...</p>
         </div>
       }
     >
