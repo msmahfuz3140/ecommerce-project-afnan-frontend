@@ -411,13 +411,7 @@ export default function ProductDetailPage({
                   />
                 </div>
 
-                {/* Subtle Hover Hint */}
-                {!isHovering && zoomLevel === 1 && (
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-xs text-white text-[11px] font-medium px-3 py-1 rounded-full pointer-events-none flex items-center gap-1.5 shadow-sm">
-                    <ZoomIn className="w-3.5 h-3.5 text-yellow-300" />
-                    <span>মাউস রেখে জুম করুন বা ক্লিক করে বড় দেখুন</span>
-                  </div>
-                )}
+
               </div>
             </div>
 

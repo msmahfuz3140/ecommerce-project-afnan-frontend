@@ -48,7 +48,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <div className="group bg-white rounded-2xl border border-slate-200/80 hover:border-rose-300 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative">
+    <div className="group animate-card-popup bg-white rounded-2xl border border-slate-200/80 hover:border-rose-300 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col overflow-hidden relative">
       {/* Badges */}
       <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1 pointer-events-none">
         {discountPercent > 0 && (

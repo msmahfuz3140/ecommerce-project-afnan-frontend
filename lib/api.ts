@@ -73,7 +73,7 @@ export const fetchProducts = async (
 
   try {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 12000) : null;
 
     const res = await fetch(`${baseUrl}/products?${query.toString()}`, {
       cache: "no-store",
@@ -85,7 +85,7 @@ export const fetchProducts = async (
 
     if (res.ok) {
       const data = await res.json();
-      if (data && data.success && Array.isArray(data.products) && data.products.length > 0) {
+      if (data && data.success && Array.isArray(data.products)) {
         return data;
       }
     }
@@ -109,7 +109,7 @@ export const fetchProduct = async (identifier: string) => {
   const baseUrl = getApiBaseUrl();
   try {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 12000) : null;
 
     const res = await fetch(`${baseUrl}/products/${identifier}`, {
       cache: "no-store",
@@ -141,7 +141,7 @@ export const fetchActiveOffers = async () => {
   const baseUrl = getApiBaseUrl();
   try {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 12000) : null;
 
     const res = await fetch(`${baseUrl}/offers/active`, {
       cache: "no-store",
@@ -179,7 +179,7 @@ export const createOrder = async (orderData: {
   const baseUrl = getApiBaseUrl();
   try {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), 5000) : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 15000) : null;
 
     const res = await fetch(`${baseUrl}/orders`, {
       method: "POST",
@@ -560,9 +560,19 @@ export const adminUploadMedia = async (file: File) => {
       headers: authHeaders(true),
       body: formData,
     });
-    if (res.ok) return await res.json();
-    throw new Error("Remote upload failed");
+    if (res.ok) {
+      const data = await res.json();
+      if (data && (data.url || data.secure_url)) {
+        return {
+          ...data,
+          url: data.url || data.secure_url,
+        };
+      }
+      return data;
+    }
+    throw new Error(`Remote upload failed with status ${res.status}`);
   } catch (error) {
+    console.warn("Upload fallback to base64:", error);
     // Convert to Base64 Data URL fallback so image upload always works in browser
     return new Promise((resolve) => {
       const reader = new FileReader();
