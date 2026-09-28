@@ -588,3 +588,27 @@ export const adminUploadMedia = async (file: File) => {
     });
   }
 };
+
+export const adminChangeCredentials = async (data: {
+  currentPassword: string;
+  newEmail?: string;
+  newPassword?: string;
+  newName?: string;
+}) => {
+  const baseUrl = getApiBaseUrl();
+  const res = await fetch(`${baseUrl}/auth/profile`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
+export const adminGetProfile = async () => {
+  const baseUrl = getApiBaseUrl();
+  const res = await fetch(`${baseUrl}/auth/me`, {
+    headers: authHeaders(),
+  });
+  return await res.json();
+};
+

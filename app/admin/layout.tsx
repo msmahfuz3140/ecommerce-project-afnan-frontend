@@ -16,6 +16,7 @@ import {
   X,
   User,
   ShieldCheck,
+  KeyRound,
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -23,6 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  const [adminUser, setAdminUser] = useState<{ name?: string; email?: string } | null>(null);
 
   // Exclude login page from layout auth guard
   const isLoginPage = pathname === "/admin/login";
@@ -40,6 +42,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       router.push("/admin/login");
     } else {
       setAuthenticated(true);
+      try {
+        const stored = localStorage.getItem("gaxinmart_admin_user");
+        if (stored) setAdminUser(JSON.parse(stored));
+      } catch {}
     }
   }, [pathname, isLoginPage, router]);
 
@@ -88,6 +94,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       href: "/admin/offers",
       icon: Gift,
     },
+    {
+      name: "অ্যাকাউন্ট ও পাসওয়ার্ড",
+      subName: "Change Email & Password",
+      href: "/admin/settings",
+      icon: KeyRound,
+    },
   ];
 
   return (
@@ -110,15 +122,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Admin Profile Chip */}
-        <div className="px-5 py-3.5 bg-slate-800/60 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-rose-500/20 text-[#df2d4d] flex items-center justify-center font-bold text-xs">
+        <Link
+          href="/admin/settings"
+          className="px-5 py-3.5 bg-slate-800/60 hover:bg-slate-800/90 border-b border-slate-800 flex items-center gap-3 transition-colors cursor-pointer group"
+          title="অ্যাকাউন্ট ও পাসওয়ার্ড পরিবর্তন করতে ক্লিক করুন"
+        >
+          <div className="w-8 h-8 rounded-full bg-rose-500/20 text-[#df2d4d] flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-110 transition-transform">
             <User className="w-4 h-4" />
           </div>
-          <div className="overflow-hidden">
-            <p className="text-xs font-bold text-white truncate">Afnan Johad</p>
-            <p className="text-[10px] text-slate-400 truncate">afnan@gmail.com</p>
+          <div className="overflow-hidden flex-1">
+            <p className="text-xs font-bold text-white truncate">{adminUser?.name || "GAXIN MART Admin"}</p>
+            <p className="text-[10px] text-slate-400 truncate">{adminUser?.email || "admin@gaxinmart.com"}</p>
           </div>
-        </div>
+          <KeyRound className="w-3.5 h-3.5 text-slate-500 group-hover:text-rose-400 transition-colors" />
+        </Link>
 
         {/* Navigation */}
         <nav className="p-4 flex-1 space-y-1.5 overflow-y-auto">

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,13 +11,46 @@ import { WhatsAppIcon, getWhatsAppUrl } from "@/components/ui/WhatsAppButton";
 
 interface ProductCardProps {
   product: Product;
+  index?: number;
   onOpenDetails?: (product: Product) => void;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
   const router = useRouter();
   const { addToCart, openDirectCheckout } = useCart();
   const productUrl = `/product/${product.slug || product._id}`;
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isRevealed, setIsRevealed] = useState(false);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    if (typeof window !== "undefined" && "IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setIsRevealed(true);
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.05,
+          rootMargin: "0px 0px -30px 0px",
+        }
+      );
+
+      observer.observe(el);
+
+      return () => {
+        observer.disconnect();
+      };
+    } else {
+      setIsRevealed(true);
+    }
+  }, []);
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -47,8 +80,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     "fashion": "Fashion",
   };
 
+  // Subtle stagger delay when scrolling into view (0.07s per column)
+  const staggerDelay = (index % 4) * 0.07;
+
   return (
-    <div className="group animate-card-popup bg-white rounded-2xl border border-slate-200/80 hover:border-rose-300 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col overflow-hidden relative">
+    <div
+      ref={cardRef}
+      className={`scroll-reveal-card bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col overflow-hidden relative ${
+        isRevealed ? "revealed" : ""
+      }`}
+      style={{
+        transitionDelay: isRevealed ? `${staggerDelay}s` : "0s",
+      }}
+    >
       {/* Badges */}
       <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1 pointer-events-none">
         {discountPercent > 0 && (
@@ -66,7 +110,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* WhatsApp Quick Float Icon on Image */}
       <button
         onClick={handleWhatsApp}
-        className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center shadow-md opacity-90 hover:opacity-100 hover:scale-110 transition-all cursor-pointer"
+        className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center shadow-md opacity-90 hover:opacity-100 transition-all cursor-pointer"
         title="WhatsApp এ সরাসরি মেসেজ করুন"
         aria-label="Chat on WhatsApp"
       >
@@ -83,7 +127,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-cover group-hover:scale-108 transition-transform duration-500 p-2 rounded-2xl"
+          className="object-cover p-2 rounded-2xl"
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
       </Link>
@@ -102,58 +146,47 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
           </div>
 
-          {/* Title - Fixed height so all cards align perfectly */}
-          <Link
-            href={productUrl}
-            className="block font-bold text-xs sm:text-sm text-slate-800 line-clamp-2 h-8 sm:h-10 hover:text-[#df2d4d] cursor-pointer transition-colors leading-tight sm:leading-snug"
-            title={product.name}
-          >
-            {product.name}
+          {/* Product Title */}
+          <Link href={productUrl}>
+            <h3 className="font-bold text-xs sm:text-sm text-slate-800 line-clamp-2 hover:text-[#df2d4d] transition-colors leading-snug">
+              {product.name}
+            </h3>
           </Link>
         </div>
 
-        {/* Pricing & CTA */}
-        <div className="mt-2 sm:mt-3 pt-2 border-t border-slate-100">
+        {/* Pricing and Action Buttons */}
+        <div className="mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-slate-100 flex flex-col gap-2">
+          {/* Prices */}
           <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
-            <span className="text-sm sm:text-lg font-black text-slate-900">
+            <span className="text-sm sm:text-base font-black text-[#df2d4d]">
               ৳{product.sellPrice.toLocaleString()}
             </span>
             {product.originalPrice > product.sellPrice && (
-              <span className="text-[10px] sm:text-xs text-slate-400 line-through font-medium">
+              <span className="text-[11px] sm:text-xs text-slate-400 line-through">
                 ৳{product.originalPrice.toLocaleString()}
               </span>
             )}
           </div>
 
-          {/* Action Buttons: Order, WhatsApp, Cart */}
-          <div className="mt-2 flex items-center gap-1 sm:gap-1.5">
-            {/* 1-Click Cash on Delivery Order Button */}
+          {/* Direct Buy & Cart Button Dual Row */}
+          <div className="grid grid-cols-2 gap-1.5 pt-0.5">
             <button
               onClick={handleBuyNow}
-              className="flex-1 min-w-0 flex items-center justify-center gap-1 py-1.5 sm:py-2 px-1.5 sm:px-2.5 rounded-xl bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-[11px] sm:text-xs font-black shadow-md shadow-rose-500/20 active:scale-95 transition-all cursor-pointer"
+              className="w-full py-1.5 sm:py-2 px-1 sm:px-2 bg-gradient-to-r from-[#df2d4d] to-[#fe4c6c] hover:from-[#b1001f] hover:to-[#df2d4d] text-white text-[11px] sm:text-xs font-bold rounded-xl shadow-sm hover:shadow-md flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
             >
-              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-yellow-300 text-yellow-300 shrink-0" />
+              <Zap className="w-3 h-3 fill-yellow-300 text-yellow-300 shrink-0" />
               <span className="truncate">অর্ডার করুন</span>
             </button>
 
-            {/* Direct WhatsApp Button */}
             <button
-              onClick={handleWhatsApp}
-              className="p-1.5 sm:p-2 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-white transition-all cursor-pointer border border-[#25D366]/20 shrink-0"
-              title="WhatsApp এ অর্ডার বা প্রশ্ন করুন"
-              aria-label="WhatsApp Order"
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart(product, 1);
+              }}
+              className="w-full py-1.5 sm:py-2 px-1 sm:px-2 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-[#df2d4d] text-[11px] sm:text-xs font-bold rounded-xl border border-slate-200/80 hover:border-rose-200 flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
             >
-              <WhatsAppIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
-
-            {/* Add to Cart Icon Button */}
-            <button
-              onClick={() => addToCart(product, 1)}
-              className="p-1.5 sm:p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-slate-700 hover:text-[#df2d4d] transition-colors cursor-pointer shrink-0"
-              title="কার্টে যোগ করুন"
-              aria-label="Add to Cart"
-            >
-              <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <ShoppingCart className="w-3 h-3 shrink-0" />
+              <span className="truncate">কার্ট</span>
             </button>
           </div>
         </div>

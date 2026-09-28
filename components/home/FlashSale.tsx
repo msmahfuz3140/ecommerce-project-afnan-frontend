@@ -73,10 +73,11 @@ export const FlashSale: React.FC<FlashSaleProps> = ({ products, onOpenDetails })
 
         {/* Products Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 mt-5">
-          {offerProducts.map((product) => (
+          {offerProducts.map((product, idx) => (
             <ProductCard
               key={product._id}
               product={product}
+              index={idx}
               onOpenDetails={onOpenDetails}
             />
           ))}

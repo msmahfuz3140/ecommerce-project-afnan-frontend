@@ -50,24 +50,26 @@ body {
   scrollbar-width: none;  /* Firefox */
 }
 
-/* Product Card Pop-up & Bottom-to-Top Entrance Animation */
-@keyframes cardPopUp {
-  0% {
-    opacity: 0;
-    transform: translateY(22px) scale(0.95);
-  }
-  70% {
-    opacity: 0.95;
-    transform: translateY(-2px) scale(1.005);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+/* Subtle Scroll-Reveal Animation: Card slides up gently on scroll */
+.scroll-reveal-card {
+  opacity: 0;
+  transform: translateY(35px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: opacity, transform;
+}
+
+.scroll-reveal-card.revealed {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal-card {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 
-.animate-card-popup {
-  animation: cardPopUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: transform, opacity;
-}
+
 

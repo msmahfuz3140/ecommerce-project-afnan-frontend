@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, ArrowRight, Loader2, ShieldCheck, AlertCircle } from "lucide-react";
+import { Lock, Mail, ArrowRight, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { adminLogin } from "@/lib/api";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@gaxinmart.com");
-  const [password, setPassword] = useState("gaxinmart3140");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -40,7 +41,7 @@ export default function AdminLoginPage() {
         setError(res.message || "ভুল ইমেইল বা পাসওয়ার্ড প্রদান করেছেন।");
       }
     } catch (err: any) {
-      setError("লগইন ব্যর্থ হয়েছে। ব্যাকএন্ড সার্ভার চালু আছে কিনা নিশ্চিত করুন।");
+      setError("লগইন ব্যর্থ হয়েছে। ইমেইল ও পাসওয়ার্ড সঠিক কিনা নিশ্চিত করুন।");
     } finally {
       setLoading(false);
     }
@@ -68,20 +69,6 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        {/* Credentials Info Helper */}
-        <div className="mb-5 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-900 space-y-1">
-          <div className="flex items-center gap-1.5 font-bold text-rose-700">
-            <ShieldCheck className="w-4 h-4 text-[#df2d4d]" />
-            <span>অ্যাডমিন এক্সেস ক্রেডেনশিয়াল:</span>
-          </div>
-          <p className="font-mono text-slate-700">
-            ইমেইল: <span className="font-bold text-slate-900">admin@gaxinmart.com</span>
-          </p>
-          <p className="font-mono text-slate-700">
-            পাসওয়ার্ড: <span className="font-bold text-slate-900">gaxinmart3140</span>
-          </p>
-        </div>
-
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-rose-100 border border-rose-300 text-rose-800 text-xs font-semibold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
@@ -92,7 +79,7 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              অ্যাডমিন ইমেইল
+              অ্যাডমিন ইমেইল (Admin Email)
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -101,7 +88,7 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@gaxinmart.com"
+                placeholder="আপনার অ্যাডমিন ইমেইল লিখুন"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-[#df2d4d] focus:outline-none text-xs sm:text-sm text-slate-900"
               />
             </div>
@@ -109,18 +96,26 @@ export default function AdminLoginPage() {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              পাসওয়ার্ড
+              পাসওয়ার্ড (Password)
             </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-[#df2d4d] focus:outline-none text-xs sm:text-sm text-slate-900"
+                placeholder="পাসওয়ার্ড লিখুন"
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:border-[#df2d4d] focus:outline-none text-xs sm:text-sm text-slate-900"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                title={showPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড দেখুন"}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 

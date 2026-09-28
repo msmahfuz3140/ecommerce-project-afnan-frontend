@@ -816,8 +816,8 @@ export default function ProductDetailPage({
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
-              {relatedProducts.map((relProd) => (
-                <ProductCard key={relProd._id} product={relProd} />
+              {relatedProducts.map((relProd, idx) => (
+                <ProductCard key={relProd._id} product={relProd} index={idx} />
               ))}
             </div>
           </section>

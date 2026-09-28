@@ -194,9 +194,12 @@ function HomeContent() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
-              {products.map((product) => (
-                <ProductCard key={product._id} product={product} />
+            <div
+              key={`${categoryParam}-${searchQuery}-${sortBy}-${products.length}`}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5"
+            >
+              {products.map((product, idx) => (
+                <ProductCard key={product._id} product={product} index={idx} />
               ))}
             </div>
           )}
