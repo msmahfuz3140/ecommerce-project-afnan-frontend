@@ -15,9 +15,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.gaxinmart.shop"),
   title: "GAXIN MART - Best Online Shopping in Bangladesh | Cash on Delivery",
   description:
     "GAXIN MART - সারা বাংলাদেশে ক্যাশ অন ডেলিভারি (Cash on Delivery) সুবিধা সহ সেরা দামে Men's Fashion, Women's Fashion, Gadgets & Electronics, Home & Lifestyle পণ্য কিনুন। হটলাইন / WhatsApp: 01356584296",
+  alternates: {
+    canonical: "https://www.gaxinmart.shop",
+  },
+  openGraph: {
+    title: "GAXIN MART - Best Online Shopping in Bangladesh | Cash on Delivery",
+    description:
+      "GAXIN MART - সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা সহ সেরা মূল্যে সব ধরনের ফ্যাশন, গ্যাজেটস ও লাইফস্টাইল পণ্য।",
+    url: "https://www.gaxinmart.shop",
+    siteName: "GAXIN MART",
+    locale: "bn_BD",
+    type: "website",
+  },
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",

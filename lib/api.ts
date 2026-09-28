@@ -10,31 +10,37 @@ import {
   ProductItem,
 } from "./mockData";
 
+export const LIVE_BACKEND_API = "https://ecommerce-project-afnan-backend.vercel.app/api";
+
 export const getApiBaseUrl = (): string => {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
 
   // In browser
   if (typeof window !== "undefined") {
-    // If on HTTPS (e.g. Vercel deployment), NEVER attempt http://localhost (mixed content blocker)
-    if (window.location.protocol === "https:") {
-      if (!envUrl || envUrl.includes("localhost") || envUrl.includes("127.0.0.1")) {
-        return "/api";
-      }
-      return envUrl.replace(/\/$/, "");
-    }
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
 
     // If on local development (http://localhost:3000)
-    if (envUrl && envUrl.trim() !== "") {
+    if (isLocalhost) {
+      if (envUrl && envUrl.trim() !== "") {
+        return envUrl.replace(/\/$/, "");
+      }
+      return "http://localhost:5001/api";
+    }
+
+    // On Production (https://www.gaxinmart.shop, https://gaxinmart.shop, or Vercel preview)
+    if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
       return envUrl.replace(/\/$/, "");
     }
-    return "http://localhost:5001/api";
+    return LIVE_BACKEND_API;
   }
 
-  // On Server-Side
-  if (envUrl && envUrl.trim() !== "") {
+  // On Server-Side (Next.js SSR / Server Components / ISR)
+  if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
     return envUrl.replace(/\/$/, "");
   }
-  return "http://localhost:5001/api";
+  return LIVE_BACKEND_API;
 };
 
 const getAdminToken = (): string | null => {
