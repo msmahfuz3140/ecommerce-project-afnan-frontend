@@ -28,6 +28,7 @@ import {
   adminUploadMedia,
 } from "@/lib/api";
 import { Product } from "@/types";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
 export const ADMIN_CATEGORIES = [
   { id: "mens-fashion", label: "👔 Men's Fashion (পুরুষদের ফ্যাশন)" },
@@ -50,6 +51,9 @@ export default function AdminProductsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState("");
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const formatForDateTimeInput = (dateStr?: string) => {
     if (!dateStr) return "";
@@ -290,17 +294,28 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("আপনি কি নিশ্চিত এই পণ্যটি ডাটাবেজ থেকে স্থায়ীভাবে মুছে ফেলতে চান?")) return;
+  const confirmDelete = (prod: Product) => {
+    setDeletingProduct(prod);
+    setDeleteError(null);
+  };
+
+  const handleExecuteDelete = async () => {
+    if (!deletingProduct) return;
+    setDeleteLoading(true);
+    setDeleteError(null);
     try {
-      const res = await adminDeleteProduct(id);
+      const res = await adminDeleteProduct(deletingProduct._id);
       if (res && res.success === false) {
-        alert(res.message || "পণ্য ডিলিট করা যায়নি");
+        setDeleteError(res.message || "পণ্য ডিলিট করা যায়নি");
+        return;
       }
+      setDeletingProduct(null);
       await loadProductsList();
     } catch (err: any) {
       console.error("Delete failed:", err);
-      alert(err.message || "পণ্য ডিলিট করতে সমস্যা হয়েছে");
+      setDeleteError(err.message || "পণ্য ডিলিট করতে সমস্যা হয়েছে");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -453,8 +468,9 @@ export default function AdminProductsPage() {
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(prod._id)}
-                          className="p-1.5 rounded-lg border text-rose-600 hover:bg-rose-50"
+                          onClick={() => confirmDelete(prod)}
+                          className="p-1.5 rounded-lg border text-rose-600 hover:bg-rose-50 cursor-pointer"
+                          title="মুছে ফেলুন"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -554,7 +570,7 @@ export default function AdminProductsPage() {
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(prod._id)}
+                            onClick={() => confirmDelete(prod)}
                             className="p-1.5 rounded-lg text-slate-600 hover:bg-rose-50 hover:text-[#df2d4d] transition-colors cursor-pointer"
                             title="মুছে ফেলুন"
                           >
@@ -961,6 +977,21 @@ export default function AdminProductsPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deletingProduct)}
+        title="পণ্য মুছে ফেলার নিশ্চিতকরণ"
+        itemName={deletingProduct?.name}
+        message="আপনি কি নিশ্চিত এই পণ্যটি GAXIN MART ডাটাবেজ থেকে স্থায়ীভাবে মুছে ফেলতে চান? এটি মুছে ফেললে গ্রাহক ওয়েবসাইট বা অ্যাডমিন প্যানেল কোথাও দেখতে পাবেন না।"
+        loading={deleteLoading}
+        error={deleteError}
+        onClose={() => {
+          setDeletingProduct(null);
+          setDeleteError(null);
+        }}
+        onConfirm={handleExecuteDelete}
+      />
     </div>
   );
 }

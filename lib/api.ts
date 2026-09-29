@@ -23,7 +23,7 @@ export const getApiBaseUrl = (): string => {
 
     // If on local development (http://localhost:3000)
     if (isLocalhost) {
-      if (envUrl && envUrl.trim() !== "") {
+      if (envUrl && (envUrl.includes("localhost") || envUrl.includes("127.0.0.1"))) {
         return envUrl.replace(/\/$/, "");
       }
       return "http://localhost:5001/api";
@@ -505,11 +505,20 @@ export const adminUpdateOffer = async (id: string, offerData: any) => {
 
 export const adminDeleteOffer = async (id: string) => {
   const baseUrl = getApiBaseUrl();
-  const res = await fetch(`${baseUrl}/offers/${id}`, {
-    method: "DELETE",
-    headers: authHeaders(),
-  });
-  return await res.json();
+  try {
+    const res = await fetch(`${baseUrl}/offers/${id}`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      return data;
+    }
+    return { success: false, message: data.message || "অফার মুছে ফেলতে ব্যর্থ হয়েছে।" };
+  } catch (error: any) {
+    console.error("Remote delete offer failed:", error);
+    return { success: false, message: error.message || "সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি।" };
+  }
 };
 
 export const adminUploadMedia = async (file: File) => {

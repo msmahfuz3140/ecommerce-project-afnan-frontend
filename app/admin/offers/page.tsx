@@ -20,6 +20,7 @@ import {
   adminUploadMedia,
 } from "@/lib/api";
 import { Offer } from "@/types";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
 export default function AdminOffersPage() {
   const [offers, setOffers] = useState<Offer[]>([]);
@@ -28,6 +29,9 @@ export default function AdminOffersPage() {
   const [submitting, setSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState("");
+  const [deletingOffer, setDeletingOffer] = useState<Offer | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -108,13 +112,28 @@ export default function AdminOffersPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("আপনি কি নিশ্চিত এই অফারটি মুছে ফেলতে চান?")) return;
+  const confirmDelete = (off: Offer) => {
+    setDeletingOffer(off);
+    setDeleteError(null);
+  };
+
+  const handleExecuteDelete = async () => {
+    if (!deletingOffer) return;
+    setDeleteLoading(true);
+    setDeleteError(null);
     try {
-      await adminDeleteOffer(id);
-      loadOffersList();
-    } catch (err) {
+      const res = await adminDeleteOffer(deletingOffer._id);
+      if (res && res.success === false) {
+        setDeleteError(res.message || "অফার মুছে ফেলতে সমস্যা হয়েছে");
+        return;
+      }
+      setDeletingOffer(null);
+      await loadOffersList();
+    } catch (err: any) {
       console.error("Delete offer failed:", err);
+      setDeleteError(err.message || "অফার মুছে ফেলতে সমস্যা হয়েছে");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -221,8 +240,8 @@ export default function AdminOffersPage() {
                 </span>
 
                 <button
-                  onClick={() => handleDelete(off._id)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                  onClick={() => confirmDelete(off)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                   title="মুছে ফেলুন"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -379,6 +398,21 @@ export default function AdminOffersPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deletingOffer)}
+        title="অফার মুছে ফেলার নিশ্চিতকরণ"
+        itemName={deletingOffer?.title}
+        message="আপনি কি নিশ্চিত এই অফার ব্যানারটি মুছে ফেলতে চান? এটি মুছে ফেললে হোমপেজের ব্যানার বা নোটিশ আর প্রদর্শিত হবে না।"
+        loading={deleteLoading}
+        error={deleteError}
+        onClose={() => {
+          setDeletingOffer(null);
+          setDeleteError(null);
+        }}
+        onConfirm={handleExecuteDelete}
+      />
     </div>
   );
 }
