@@ -17,6 +17,8 @@ import {
   TrendingUp,
   ShieldCheck,
   EyeOff,
+  Clock,
+  Calendar,
 } from "lucide-react";
 import {
   fetchProducts,
@@ -49,6 +51,18 @@ export default function AdminProductsPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState("");
 
+  const formatForDateTimeInput = (dateStr?: string) => {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return "";
+      const pad = (n: number) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    } catch {
+      return "";
+    }
+  };
+
   const [formData, setFormData] = useState({
     name: "",
     category: "mens-fashion",
@@ -62,6 +76,7 @@ export default function AdminProductsPage() {
     image: "",
     isOffer: false,
     offerBadge: "",
+    offerEndTime: "",
   });
 
   const loadProductsList = async () => {
@@ -100,6 +115,7 @@ export default function AdminProductsPage() {
       image: "",
       isOffer: false,
       offerBadge: "",
+      offerEndTime: "",
     });
     setMessage("");
     setIsModalOpen(true);
@@ -124,9 +140,21 @@ export default function AdminProductsPage() {
       image: prod.images[0] || "",
       isOffer: prod.isOffer || false,
       offerBadge: prod.offerBadge || (disc > 0 ? `${disc}% OFF` : ""),
+      offerEndTime: formatForDateTimeInput(prod.offerEndTime),
     });
     setMessage("");
     setIsModalOpen(true);
+  };
+
+  const setQuickOfferDuration = (hours: number) => {
+    const target = new Date(Date.now() + hours * 3600000);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const formatted = `${target.getFullYear()}-${pad(target.getMonth() + 1)}-${pad(target.getDate())}T${pad(target.getHours())}:${pad(target.getMinutes())}`;
+    setFormData((prev) => ({
+      ...prev,
+      isOffer: true,
+      offerEndTime: formatted,
+    }));
   };
 
   // Two-way price and discount percentage calculations
@@ -234,6 +262,7 @@ export default function AdminProductsPage() {
       images: formData.image ? [formData.image] : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"],
       isOffer: formData.isOffer,
       offerBadge: formData.offerBadge.trim(),
+      offerEndTime: formData.isOffer && formData.offerEndTime ? new Date(formData.offerEndTime).toISOString() : undefined,
     };
 
     try {
@@ -244,27 +273,34 @@ export default function AdminProductsPage() {
         res = await adminCreateProduct(payload);
       }
 
-      if (res.success) {
-        setMessage("পণ্য সফলভাবে সংরক্ষিত হয়েছে!");
+      if (res && res.success) {
+        setMessage("পণ্য সফলভাবে ডাটাবেজে সংরক্ষিত হয়েছে!");
         setTimeout(() => {
           setIsModalOpen(false);
           loadProductsList();
-        }, 800);
+        }, 700);
+      } else {
+        alert(res?.message || "পণ্য সংরক্ষণ করা সম্ভব হয়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Save product failed:", err);
+      alert(err.message || "পণ্য সংরক্ষণে সমস্যা দেখা দিয়েছে");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("আপনি কি নিশ্চিত এই পণ্যটি ডিলিট করতে চান?")) return;
+    if (!confirm("আপনি কি নিশ্চিত এই পণ্যটি ডাটাবেজ থেকে স্থায়ীভাবে মুছে ফেলতে চান?")) return;
     try {
-      await adminDeleteProduct(id);
-      loadProductsList();
-    } catch (err) {
+      const res = await adminDeleteProduct(id);
+      if (res && res.success === false) {
+        alert(res.message || "পণ্য ডিলিট করা যায়নি");
+      }
+      await loadProductsList();
+    } catch (err: any) {
       console.error("Delete failed:", err);
+      alert(err.message || "পণ্য ডিলিট করতে সমস্যা হয়েছে");
     }
   };
 
@@ -491,9 +527,19 @@ export default function AdminProductsPage() {
 
                         <td className="py-3 px-4">
                           {prod.isOffer ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
-                              {prod.offerBadge || "Offer"}
-                            </span>
+                            <div>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                {prod.offerBadge || "Offer"}
+                              </span>
+                              {prod.offerEndTime && (
+                                <p className="text-[9px] text-slate-500 mt-0.5 flex items-center gap-0.5">
+                                  <Clock className="w-2.5 h-2.5 text-amber-600" />
+                                  {new Date(prod.offerEndTime).getTime() > Date.now()
+                                    ? `মেয়াদ: ${new Date(prod.offerEndTime).toLocaleDateString("bn-BD")}`
+                                    : "মেয়াদোত্তীর্ণ"}
+                                </p>
+                              )}
+                            </div>
                           ) : (
                             <span className="text-slate-400">-</span>
                           )}
@@ -812,17 +858,84 @@ export default function AdminProductsPage() {
               </div>
 
               {formData.isOffer && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    অফার ব্যাজ টেক্সট (Offer Badge)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.offerBadge}
-                    onChange={(e) => setFormData({ ...formData, offerBadge: e.target.value })}
-                    placeholder="যেমন: 25% OFF বা FLASH SALE"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 bg-white"
-                  />
+                <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        অফার ব্যাজ টেক্সট (Offer Badge)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.offerBadge}
+                        onChange={(e) => setFormData({ ...formData, offerBadge: e.target.value })}
+                        placeholder="যেমন: 25% OFF বা FLASH SALE"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-amber-950 mb-1 flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        অফার সমাপ্তির তারিখ ও সময় (Offer End Time)
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={formData.offerEndTime}
+                        onChange={(e) => setFormData({ ...formData, offerEndTime: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold text-slate-900 bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quick Expiration Presets */}
+                  <div>
+                    <p className="text-[10px] font-bold text-amber-900 mb-1.5 flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-amber-600" />
+                      দ্রুত সময় নির্ধারণ করুন (Quick Duration):
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setQuickOfferDuration(12)}
+                        className="px-2.5 py-1 rounded-lg text-[10px] font-bold border border-amber-300 bg-white hover:bg-amber-100 text-amber-900 transition-colors cursor-pointer"
+                      >
+                        +১২ ঘন্টা
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQuickOfferDuration(24)}
+                        className="px-2.5 py-1 rounded-lg text-[10px] font-bold border border-amber-300 bg-white hover:bg-amber-100 text-amber-900 transition-colors cursor-pointer"
+                      >
+                        +২৪ ঘন্টা (১ দিন)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQuickOfferDuration(72)}
+                        className="px-2.5 py-1 rounded-lg text-[10px] font-bold border border-amber-300 bg-white hover:bg-amber-100 text-amber-900 transition-colors cursor-pointer"
+                      >
+                        +৩ দিন
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQuickOfferDuration(168)}
+                        className="px-2.5 py-1 rounded-lg text-[10px] font-bold border border-amber-300 bg-white hover:bg-amber-100 text-amber-900 transition-colors cursor-pointer"
+                      >
+                        +৭ দিন
+                      </button>
+                      {formData.offerEndTime && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, offerEndTime: "" })}
+                          className="px-2.5 py-1 rounded-lg text-[10px] font-bold border border-slate-300 bg-white hover:bg-rose-50 text-rose-600 transition-colors cursor-pointer"
+                        >
+                          সময়সীমা মুছুন
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-amber-800/80 mt-1.5">
+                      ⚡ নির্ধারিত সময় শেষ হওয়ার সাথে সাথে ওয়েবসাইট ও ফ্ল্যাশ সেল থেকে অফার স্বয়ংক্রিয়ভাবে রিয়েল-টাইমে বন্ধ হয়ে যাবে।
+                    </p>
+                  </div>
                 </div>
               )}
 

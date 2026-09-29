@@ -13,8 +13,9 @@ import {
   AlertCircle,
   Loader2,
   Save,
+  Truck,
 } from "lucide-react";
-import { adminChangeCredentials } from "@/lib/api";
+import { adminChangeCredentials, fetchDeliverySettings, adminUpdateDeliverySettings } from "@/lib/api";
 
 export default function AdminSettingsPage() {
   const [currentEmail, setCurrentEmail] = useState("");
@@ -33,6 +34,15 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // Delivery Charges State (3 Options: Dhaka, Near Dhaka, Outside Dhaka)
+  const [deliverySettings, setDeliverySettings] = useState({
+    dhaka: 70,
+    nearDhaka: 100,
+    outsideDhaka: 130,
+  });
+  const [loadingDelivery, setLoadingDelivery] = useState(false);
+  const [deliveryMessage, setDeliveryMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   useEffect(() => {
     // Load current admin info from localStorage
     try {
@@ -45,13 +55,53 @@ export default function AdminSettingsPage() {
           setName(u.name);
         }
       } else {
-        setCurrentEmail("admin@gaxinmart.com");
+        setCurrentEmail("gaxinmart@gmail.com");
         setCurrentName("GAXIN MART Admin");
       }
     } catch {
-      setCurrentEmail("admin@gaxinmart.com");
+      setCurrentEmail("gaxinmart@gmail.com");
     }
+
+    // Load delivery settings from backend
+    fetchDeliverySettings().then((res) => {
+      if (res) {
+        setDeliverySettings(res);
+      }
+    });
   }, []);
+
+  const handleSaveDelivery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeliveryMessage(null);
+    setLoadingDelivery(true);
+
+    try {
+      const res = await adminUpdateDeliverySettings({
+        dhaka: Number(deliverySettings.dhaka) || 0,
+        nearDhaka: Number(deliverySettings.nearDhaka) || 0,
+        outsideDhaka: Number(deliverySettings.outsideDhaka) || 0,
+      });
+
+      if (res && res.success) {
+        setDeliveryMessage({
+          type: "success",
+          text: res.message || "৩টি এরিয়ার ডেলিভারি চার্জ সফলভাবে ডাটাবেজে আপডেট করা হয়েছে!",
+        });
+      } else {
+        setDeliveryMessage({
+          type: "error",
+          text: res?.message || "ডেলিভারি চার্জ সংরক্ষণ করা সম্ভব হয়নি।",
+        });
+      }
+    } catch (err: any) {
+      setDeliveryMessage({
+        type: "error",
+        text: err?.message || "সার্ভার এরর: ডেলিভারি চার্জ আপডেট ব্যর্থ হয়েছে।",
+      });
+    } finally {
+      setLoadingDelivery(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,6 +236,116 @@ export default function AdminSettingsPage() {
           <div className="flex-1">{message.text}</div>
         </div>
       )}
+
+      {/* ================= DELIVERY CHARGE SETTINGS (3 ZONES) ================= */}
+      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#df2d4d] flex items-center justify-center">
+              <Truck className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-slate-900">ডেলিভারি চার্জ কনফিগারেশন (Delivery Zones)</h3>
+              <p className="text-[11px] text-slate-500">৩টি নির্দিষ্ট জোনের জন্য ইচ্ছামতো ডেলিভারি চার্জ নির্ধারণ করুন</p>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+            ✓ চেকআউটে সরাসরি কার্যকর হবে
+          </span>
+        </div>
+
+        {deliveryMessage && (
+          <div
+            className={`p-3 rounded-xl flex items-center gap-2 text-xs font-bold ${
+              deliveryMessage.type === "success"
+                ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+                : "bg-rose-50 border border-rose-200 text-rose-800"
+            }`}
+          >
+            {deliveryMessage.type === "success" ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            )}
+            <span>{deliveryMessage.text}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSaveDelivery} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Zone 1: Dhaka */}
+            <div className="p-3.5 rounded-xl border-2 border-slate-200 bg-slate-50/50 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-slate-800">১. ঢাকা সিটির ভেতরে</span>
+                <span className="text-[10px] text-slate-500">(Dhaka)</span>
+              </div>
+              <p className="text-[10px] text-slate-500">ঢাকা মেট্রোপলিটন এলাকা</p>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-slate-500">৳</span>
+                <input
+                  type="number"
+                  min="0"
+                  required
+                  value={deliverySettings.dhaka}
+                  onChange={(e) => setDeliverySettings({ ...deliverySettings, dhaka: Number(e.target.value) })}
+                  className="w-full pl-7 pr-3 py-2 rounded-lg border border-slate-300 text-sm font-black text-slate-900 bg-white focus:border-[#df2d4d] focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Zone 2: Near Dhaka */}
+            <div className="p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50/30 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-slate-800">২. ঢাকার আশেপাশে</span>
+                <span className="text-[10px] text-amber-700 font-bold">(Near Dhaka)</span>
+              </div>
+              <p className="text-[10px] text-slate-500">সাভার, গাজীপুর, নারায়ণগঞ্জ, কেরানীগঞ্জ</p>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-slate-500">৳</span>
+                <input
+                  type="number"
+                  min="0"
+                  required
+                  value={deliverySettings.nearDhaka}
+                  onChange={(e) => setDeliverySettings({ ...deliverySettings, nearDhaka: Number(e.target.value) })}
+                  className="w-full pl-7 pr-3 py-2 rounded-lg border border-amber-300 text-sm font-black text-slate-900 bg-white focus:border-[#df2d4d] focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Zone 3: Outside Dhaka */}
+            <div className="p-3.5 rounded-xl border-2 border-rose-200 bg-rose-50/30 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-slate-800">৩. ঢাকার বাইরে</span>
+                <span className="text-[10px] text-rose-700 font-bold">(Outside Dhaka)</span>
+              </div>
+              <p className="text-[10px] text-slate-500">অন্যান্য সকল জেলা ও উপজেলা</p>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-slate-500">৳</span>
+                <input
+                  type="number"
+                  min="0"
+                  required
+                  value={deliverySettings.outsideDhaka}
+                  onChange={(e) => setDeliverySettings({ ...deliverySettings, outsideDhaka: Number(e.target.value) })}
+                  className="w-full pl-7 pr-3 py-2 rounded-lg border border-rose-300 text-sm font-black text-slate-900 bg-white focus:border-[#df2d4d] focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-1">
+            <button
+              type="submit"
+              disabled={loadingDelivery}
+              className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md active:scale-98 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              {loadingDelivery ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              <span>ডেলিভারি চার্জ সেভ করুন</span>
+            </button>
+          </div>
+        </form>
+      </div>
 
       {/* Settings Form */}
       <form onSubmit={handleSubmit} className="space-y-6">

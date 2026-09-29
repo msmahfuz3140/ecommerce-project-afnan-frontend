@@ -24,7 +24,7 @@ import {
   Check,
 } from "lucide-react";
 import { useCart, CartItem } from "@/context/CartContext";
-import { createOrder, fetchProduct } from "@/lib/api";
+import { createOrder, fetchProduct, fetchDeliverySettings } from "@/lib/api";
 import { Product } from "@/types";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppButton";
 
@@ -58,11 +58,28 @@ function CheckoutContent() {
     note: "",
   });
 
+  const [rates, setRates] = useState({ dhaka: 70, nearDhaka: 100, outsideDhaka: 130 });
+  const [selectedZone, setSelectedZone] = useState<"dhaka" | "near_dhaka" | "outside_dhaka">("dhaka");
   const [deliveryCharge, setDeliveryCharge] = useState(70);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [placedOrder, setPlacedOrder] = useState<any | null>(null);
   const [copiedOrderId, setCopiedOrderId] = useState(false);
+
+  useEffect(() => {
+    fetchDeliverySettings().then((res) => {
+      if (res) {
+        setRates(res);
+        if (selectedZone === "dhaka") {
+          setDeliveryCharge(res.dhaka);
+        } else if (selectedZone === "near_dhaka") {
+          setDeliveryCharge(res.nearDhaka);
+        } else {
+          setDeliveryCharge(res.outsideDhaka);
+        }
+      }
+    });
+  }, []);
 
   // Initialize Items
   useEffect(() => {
@@ -145,14 +162,18 @@ function CheckoutContent() {
     }
   };
 
-  // Handle Area Change
-  const handleAreaChange = (area: "inside" | "outside") => {
-    if (area === "inside") {
+  // Handle Area Change (3 Zones)
+  const handleAreaChange = (zone: "dhaka" | "near_dhaka" | "outside_dhaka") => {
+    setSelectedZone(zone);
+    if (zone === "dhaka") {
       setFormData((prev) => ({ ...prev, city: "Dhaka (Inside Dhaka)" }));
-      setDeliveryCharge(70);
+      setDeliveryCharge(rates.dhaka);
+    } else if (zone === "near_dhaka") {
+      setFormData((prev) => ({ ...prev, city: "Near Dhaka (সাভার, গাজীপুর, নারায়ণগঞ্জ)" }));
+      setDeliveryCharge(rates.nearDhaka);
     } else {
-      setFormData((prev) => ({ ...prev, city: "Outside Dhaka (ঢাকার বাইরে)" }));
-      setDeliveryCharge(130);
+      setFormData((prev) => ({ ...prev, city: "Outside Dhaka (ঢাকার বাইরে সারা বাংলাদেশ)" }));
+      setDeliveryCharge(rates.outsideDhaka);
     }
   };
 
@@ -192,6 +213,7 @@ function CheckoutContent() {
         phone: formData.phone.trim(),
         address: formData.address.trim(),
         city: formData.city,
+        deliveryCharge,
         note: formData.note.trim(),
         items: items.map((i) => ({
           productId: i.product._id,
@@ -577,58 +599,88 @@ function CheckoutContent() {
                   </div>
                 </div>
 
-                {/* 3. Delivery Area Selection (Radio Cards) */}
+                {/* 3. Delivery Area Selection (3 Radio Cards) */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-2">
-                    ডেলিভারি এলাকা নির্বাচন করুন <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-slate-800 mb-2 flex items-center justify-between">
+                    <span>
+                      ডেলিভারি এলাকা নির্বাচন করুন <span className="text-rose-500">*</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-normal">৩টি জোনের যেকোনো একটি বেছে নিন</span>
                   </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {/* Zone 1: Inside Dhaka */}
                     <label
-                      onClick={() => handleAreaChange("inside")}
-                      className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
-                        formData.city.includes("Inside")
+                      onClick={() => handleAreaChange("dhaka")}
+                      className={`p-3 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                        selectedZone === "dhaka"
                           ? "border-[#df2d4d] bg-rose-50/40 text-slate-900 shadow-xs"
                           : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2">
                         <input
                           type="radio"
                           name="delivery_area"
-                          checked={formData.city.includes("Inside")}
-                          onChange={() => handleAreaChange("inside")}
-                          className="accent-[#df2d4d] w-4 h-4"
+                          checked={selectedZone === "dhaka"}
+                          onChange={() => handleAreaChange("dhaka")}
+                          className="accent-[#df2d4d] w-4 h-4 cursor-pointer"
                         />
                         <div>
                           <span className="text-xs font-bold block">ঢাকা সিটির ভেতরে</span>
-                          <span className="text-[10px] text-slate-500">হোম ডেলিভারি (২ দিন)</span>
+                          <span className="text-[10px] text-slate-500">হোম ডেলিভারি</span>
                         </div>
                       </div>
-                      <span className="font-mono font-black text-xs text-[#df2d4d]">৳৭০</span>
+                      <span className="font-mono font-black text-xs text-[#df2d4d]">৳{rates.dhaka}</span>
                     </label>
 
+                    {/* Zone 2: Near Dhaka */}
                     <label
-                      onClick={() => handleAreaChange("outside")}
-                      className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
-                        formData.city.includes("Outside")
+                      onClick={() => handleAreaChange("near_dhaka")}
+                      className={`p-3 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                        selectedZone === "near_dhaka"
                           ? "border-[#df2d4d] bg-rose-50/40 text-slate-900 shadow-xs"
                           : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2">
                         <input
                           type="radio"
                           name="delivery_area"
-                          checked={formData.city.includes("Outside")}
-                          onChange={() => handleAreaChange("outside")}
-                          className="accent-[#df2d4d] w-4 h-4"
+                          checked={selectedZone === "near_dhaka"}
+                          onChange={() => handleAreaChange("near_dhaka")}
+                          className="accent-[#df2d4d] w-4 h-4 cursor-pointer"
                         />
                         <div>
-                          <span className="text-xs font-bold block">ঢাকা সিটির বাইরে</span>
-                          <span className="text-[10px] text-slate-500">দেশব্যাপী কুরিয়ার (৩-৫ দিন)</span>
+                          <span className="text-xs font-bold block">ঢাকার আশেপাশে</span>
+                          <span className="text-[10px] text-slate-500">সাভার, গাজীপুর...</span>
                         </div>
                       </div>
-                      <span className="font-mono font-black text-xs text-[#df2d4d]">৳১৩০</span>
+                      <span className="font-mono font-black text-xs text-[#df2d4d]">৳{rates.nearDhaka}</span>
+                    </label>
+
+                    {/* Zone 3: Outside Dhaka */}
+                    <label
+                      onClick={() => handleAreaChange("outside_dhaka")}
+                      className={`p-3 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                        selectedZone === "outside_dhaka"
+                          ? "border-[#df2d4d] bg-rose-50/40 text-slate-900 shadow-xs"
+                          : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="delivery_area"
+                          checked={selectedZone === "outside_dhaka"}
+                          onChange={() => handleAreaChange("outside_dhaka")}
+                          className="accent-[#df2d4d] w-4 h-4 cursor-pointer"
+                        />
+                        <div>
+                          <span className="text-xs font-bold block">ঢাকার বাইরে</span>
+                          <span className="text-[10px] text-slate-500">সারাদেশ কুরিয়ার</span>
+                        </div>
+                      </div>
+                      <span className="font-mono font-black text-xs text-[#df2d4d]">৳{rates.outsideDhaka}</span>
                     </label>
                   </div>
                 </div>

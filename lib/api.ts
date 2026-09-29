@@ -417,42 +417,14 @@ export const adminCreateProduct = async (productData: any) => {
       headers: authHeaders(),
       body: JSON.stringify(productData),
     });
-    if (res.ok) return await res.json();
-    throw new Error("Remote create product failed");
-  } catch (error) {
-    // Store in browser custom products
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem("gaxinmart_custom_products");
-        const list = stored ? JSON.parse(stored) : [...getAllProducts()];
-        const newProd: ProductItem = {
-          _id: `prod-custom-${Date.now()}`,
-          name: productData.name,
-          slug: (productData.name || "").toLowerCase().replace(/\s+/g, "-"),
-          description: productData.description || "",
-          category: productData.category || "mens-fashion",
-          subCategory: productData.subCategory,
-          buyPrice: Number(productData.buyPrice) || 0,
-          sellPrice: Number(productData.sellPrice) || 0,
-          originalPrice: Number(productData.originalPrice) || Number(productData.sellPrice) || 0,
-          stock: Number(productData.stock) || 10,
-          inStock: (Number(productData.stock) || 10) > 0,
-          images: Array.isArray(productData.images) && productData.images.length > 0
-            ? productData.images
-            : ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80"],
-          isOffer: Boolean(productData.isOffer),
-          offerBadge: productData.offerBadge,
-          isFeatured: Boolean(productData.isFeatured),
-          specifications: productData.specifications || {},
-        };
-        list.unshift(newProd);
-        localStorage.setItem("gaxinmart_custom_products", JSON.stringify(list));
-        return { success: true, product: newProd };
-      } catch (e) {
-        // ignore
-      }
+    const data = await res.json();
+    if (res.ok && data.success) {
+      return data;
     }
-    return { success: true, message: "Product created" };
+    return { success: false, message: data.message || "পণ্য তৈরি করতে ব্যর্থ হয়েছে।" };
+  } catch (error: any) {
+    console.error("Remote create product failed:", error);
+    return { success: false, message: error.message || "সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি।" };
   }
 };
 
@@ -464,23 +436,14 @@ export const adminUpdateProduct = async (id: string, productData: any) => {
       headers: authHeaders(),
       body: JSON.stringify(productData),
     });
-    if (res.ok) return await res.json();
-    throw new Error("Remote update product failed");
-  } catch (error) {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem("gaxinmart_custom_products");
-        const list = stored ? JSON.parse(stored) : [...getAllProducts()];
-        const idx = list.findIndex((p: any) => p._id === id);
-        if (idx !== -1) {
-          list[idx] = { ...list[idx], ...productData };
-          localStorage.setItem("gaxinmart_custom_products", JSON.stringify(list));
-        }
-      } catch (e) {
-        // ignore
-      }
+    const data = await res.json();
+    if (res.ok && data.success) {
+      return data;
     }
-    return { success: true, message: "Product updated" };
+    return { success: false, message: data.message || "পণ্য আপডেট করতে ব্যর্থ হয়েছে।" };
+  } catch (error: any) {
+    console.error("Remote update product failed:", error);
+    return { success: false, message: error.message || "সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি।" };
   }
 };
 
@@ -491,20 +454,14 @@ export const adminDeleteProduct = async (id: string) => {
       method: "DELETE",
       headers: authHeaders(),
     });
-    if (res.ok) return await res.json();
-    throw new Error("Remote delete product failed");
-  } catch (error) {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem("gaxinmart_custom_products");
-        let list = stored ? JSON.parse(stored) : [...getAllProducts()];
-        list = list.filter((p: any) => p._id !== id);
-        localStorage.setItem("gaxinmart_custom_products", JSON.stringify(list));
-      } catch (e) {
-        // ignore
-      }
+    const data = await res.json();
+    if (res.ok && data.success) {
+      return data;
     }
-    return { success: true, message: "Product deleted" };
+    return { success: false, message: data.message || "পণ্য ডিলিট করতে ব্যর্থ হয়েছে।" };
+  } catch (error: any) {
+    console.error("Remote delete product failed:", error);
+    return { success: false, message: error.message || "সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি।" };
   }
 };
 
@@ -617,4 +574,45 @@ export const adminGetProfile = async () => {
   });
   return await res.json();
 };
+
+export interface DeliverySettings {
+  dhaka: number;
+  nearDhaka: number;
+  outsideDhaka: number;
+}
+
+export const fetchDeliverySettings = async (): Promise<DeliverySettings> => {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const res = await fetch(`${baseUrl}/settings/delivery`, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.deliverySettings) {
+        return {
+          dhaka: Number(data.deliverySettings.dhaka) || 70,
+          nearDhaka: Number(data.deliverySettings.nearDhaka) || 100,
+          outsideDhaka: Number(data.deliverySettings.outsideDhaka) || 130,
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("Using fallback delivery settings:", err);
+  }
+  return {
+    dhaka: 70,
+    nearDhaka: 100,
+    outsideDhaka: 130,
+  };
+};
+
+export const adminUpdateDeliverySettings = async (settings: DeliverySettings) => {
+  const baseUrl = getApiBaseUrl();
+  const res = await fetch(`${baseUrl}/settings/delivery`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(settings),
+  });
+  return await res.json();
+};
+
 

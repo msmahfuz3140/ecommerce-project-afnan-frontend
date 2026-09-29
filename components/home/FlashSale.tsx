@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Zap, Clock, ArrowRight } from "lucide-react";
+import { Zap, Clock } from "lucide-react";
 import { Product } from "@/types";
 import { ProductCard } from "@/components/product/ProductCard";
 
@@ -11,28 +11,63 @@ interface FlashSaleProps {
 }
 
 export const FlashSale: React.FC<FlashSaleProps> = ({ products, onOpenDetails }) => {
-  // 48 hour countdown simulation
-  const [timeLeft, setTimeLeft] = useState({
-    hours: 23,
-    minutes: 45,
-    seconds: 30,
-  });
+  const [now, setNow] = useState<number>(Date.now());
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return { hours: 23, minutes: 59, seconds: 59 };
-      });
+      setNow(Date.now());
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const offerProducts = products.filter((p) => p.isOffer).slice(0, 4);
+  // Filter products that have isOffer === true AND (no offerEndTime OR offerEndTime > now)
+  const activeOfferProducts = products.filter((p) => {
+    if (!p.isOffer) return false;
+    if (p.offerEndTime) {
+      const end = new Date(p.offerEndTime).getTime();
+      if (!isNaN(end) && end <= now) return false;
+    }
+    return true;
+  });
+
+  const offerProducts = activeOfferProducts.slice(0, 4);
 
   if (offerProducts.length === 0) return null;
+
+  // Find nearest expiration time among active offer products
+  let targetEndTime: number | null = null;
+  for (const p of offerProducts) {
+    if (p.offerEndTime) {
+      const end = new Date(p.offerEndTime).getTime();
+      if (!isNaN(end) && end > now) {
+        if (targetEndTime === null || end < targetEndTime) {
+          targetEndTime = end;
+        }
+      }
+    }
+  }
+
+  // Calculate real remaining time
+  let days = 0;
+  let hours = 0;
+  let minutes = 0;
+  let seconds = 0;
+
+  if (targetEndTime) {
+    const diff = Math.max(0, targetEndTime - now);
+    days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    minutes = Math.floor((diff / (1000 * 60)) % 60);
+    seconds = Math.floor((diff / 1000) % 60);
+  } else {
+    // If no explicit end time is set, fallback to end of current day (midnight)
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    const diff = Math.max(0, endOfDay.getTime() - now);
+    hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    minutes = Math.floor((diff / (1000 * 60)) % 60);
+    seconds = Math.floor((diff / 1000) % 60);
+  }
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -53,20 +88,28 @@ export const FlashSale: React.FC<FlashSaleProps> = ({ products, onOpenDetails })
             </div>
           </div>
 
-          {/* Countdown Boxes */}
+          {/* Real Countdown Boxes */}
           <div className="flex items-center gap-1.5 self-center sm:self-auto bg-white px-3.5 py-1.5 rounded-xl border border-rose-200 shadow-xs">
             <Clock className="w-4 h-4 text-[#df2d4d] mr-1" />
             <span className="text-xs font-bold text-slate-600 mr-1">অফারের বাকি:</span>
+            {days > 0 && (
+              <>
+                <div className="bg-slate-900 text-white font-mono font-bold text-xs px-2 py-1 rounded-md">
+                  {String(days).padStart(2, "0")} দিন
+                </div>
+                <span className="font-bold text-rose-500">:</span>
+              </>
+            )}
             <div className="bg-slate-900 text-white font-mono font-bold text-xs px-2 py-1 rounded-md">
-              {String(timeLeft.hours).padStart(2, "0")}
+              {String(hours).padStart(2, "0")}
             </div>
             <span className="font-bold text-rose-500">:</span>
             <div className="bg-slate-900 text-white font-mono font-bold text-xs px-2 py-1 rounded-md">
-              {String(timeLeft.minutes).padStart(2, "0")}
+              {String(minutes).padStart(2, "0")}
             </div>
             <span className="font-bold text-rose-500">:</span>
             <div className="bg-[#df2d4d] text-white font-mono font-bold text-xs px-2 py-1 rounded-md animate-pulse">
-              {String(timeLeft.seconds).padStart(2, "0")}
+              {String(seconds).padStart(2, "0")}
             </div>
           </div>
         </div>

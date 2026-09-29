@@ -13,6 +13,7 @@ export interface Product {
   images: string[];
   isOffer: boolean;
   offerBadge?: string;
+  offerEndTime?: string;
   isFeatured: boolean;
   specifications?: Record<string, string>;
   createdAt?: string;

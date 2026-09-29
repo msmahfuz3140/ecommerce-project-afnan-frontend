@@ -161,15 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden md:inline">Track Order</span>
             </button>
 
-            {/* Admin Portal Link (Desktop) */}
-            <Link
-              href="/admin"
-              className="hidden md:flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200"
-              title="Admin Panel"
-            >
-              <Lock className="w-4 h-4 text-slate-500" />
-              <span>Admin</span>
-            </Link>
+
 
             {/* Cart Button */}
             <button
@@ -360,14 +352,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <Truck className="w-4 h-4 text-[#df2d4d]" />
                   অর্ডার ট্র্যাক করুন (Track Order)
                 </button>
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2 rounded-xl hover:bg-slate-100 text-slate-700 flex items-center gap-2.5 transition-colors"
-                >
-                  <Lock className="w-4 h-4 text-slate-500" />
-                  অ্যাডমিন প্যানেল (Admin)
-                </Link>
+
               </div>
             </div>
 

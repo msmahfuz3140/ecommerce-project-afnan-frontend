@@ -148,9 +148,7 @@ export const Footer: React.FC = () => {
               <span className="hover:text-rose-400 cursor-pointer">প্রাইভেসী পলিসি</span>
             </li>
             <li>
-              <Link href="/admin" className="text-slate-400 hover:text-white flex items-center gap-1 pt-1">
-                <Lock className="w-3 h-3" /> অ্যাডমিন লগইন (Admin Panel)
-              </Link>
+              <span className="hover:text-rose-400 cursor-pointer">টার্মস অ্যান্ড কন্ডিশন</span>
             </li>
           </ul>
         </div>

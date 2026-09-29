@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   X,
@@ -15,7 +15,7 @@ import {
   Check,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { createOrder } from "@/lib/api";
+import { createOrder, fetchDeliverySettings } from "@/lib/api";
 import { WhatsAppIcon, WHATSAPP_NUMBER } from "@/components/ui/WhatsAppButton";
 
 export const CashOnDeliveryModal: React.FC = () => {
@@ -44,11 +44,28 @@ export const CashOnDeliveryModal: React.FC = () => {
     note: "",
   });
 
+  const [rates, setRates] = useState({ dhaka: 70, nearDhaka: 100, outsideDhaka: 130 });
+  const [selectedZone, setSelectedZone] = useState<"dhaka" | "near_dhaka" | "outside_dhaka">("dhaka");
   const [deliveryCharge, setDeliveryCharge] = useState(70);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [placedOrder, setPlacedOrder] = useState<any | null>(null);
   const [copiedOrderId, setCopiedOrderId] = useState(false);
+
+  useEffect(() => {
+    fetchDeliverySettings().then((res) => {
+      if (res) {
+        setRates(res);
+        if (selectedZone === "dhaka") {
+          setDeliveryCharge(res.dhaka);
+        } else if (selectedZone === "near_dhaka") {
+          setDeliveryCharge(res.nearDhaka);
+        } else {
+          setDeliveryCharge(res.outsideDhaka);
+        }
+      }
+    });
+  }, []);
 
   if (!isCheckoutOpen) return null;
 
@@ -60,12 +77,17 @@ export const CashOnDeliveryModal: React.FC = () => {
     }
   };
 
-  const handleCityChange = (val: string) => {
-    setFormData({ ...formData, city: val });
-    if (val.includes("Outside")) {
-      setDeliveryCharge(130);
+  const handleZoneSelect = (zone: "dhaka" | "near_dhaka" | "outside_dhaka") => {
+    setSelectedZone(zone);
+    if (zone === "dhaka") {
+      setFormData((prev) => ({ ...prev, city: "Dhaka (ঢাকা সিটির ভেতরে)" }));
+      setDeliveryCharge(rates.dhaka);
+    } else if (zone === "near_dhaka") {
+      setFormData((prev) => ({ ...prev, city: "Near Dhaka (সাভার, গাজীপুর, নারায়ণগঞ্জ)" }));
+      setDeliveryCharge(rates.nearDhaka);
     } else {
-      setDeliveryCharge(70);
+      setFormData((prev) => ({ ...prev, city: "Outside Dhaka (ঢাকার বাইরে সারা বাংলাদেশ)" }));
+      setDeliveryCharge(rates.outsideDhaka);
     }
   };
 
@@ -106,6 +128,7 @@ export const CashOnDeliveryModal: React.FC = () => {
         phone: formData.phone.trim(),
         address: formData.address.trim(),
         city: formData.city,
+        deliveryCharge,
         note: formData.note.trim(),
         items: checkoutItems.map((item) => ({
           productId: item.product._id,
@@ -353,36 +376,53 @@ export const CashOnDeliveryModal: React.FC = () => {
                   />
                 </div>
 
-                {/* City / Delivery Zone Selector */}
+                {/* City / Delivery Zone Selector (3 Options) */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    ডেলিভারি এরিয়া (Delivery Zone)
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span>ডেলিভারি এরিয়া (Delivery Zone)</span>
+                    <span className="text-[10px] text-slate-400 font-normal">৩টি জোনের যেকোনো একটি নির্বাচন করুন</span>
                   </label>
-                  <div className="grid grid-cols-2 gap-2 text-[11px] sm:text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] sm:text-xs">
+                    {/* Zone 1: Inside Dhaka */}
                     <button
                       type="button"
-                      onClick={() => handleCityChange("Dhaka (Inside Dhaka)")}
-                      className={`p-2 sm:p-2.5 rounded-xl border text-left font-bold transition-all ${
-                        formData.city.includes("Inside")
-                          ? "border-[#df2d4d] bg-rose-50 text-[#df2d4d]"
-                          : "border-slate-200 hover:border-slate-300 text-slate-700"
+                      onClick={() => handleZoneSelect("dhaka")}
+                      className={`p-2.5 rounded-xl border text-left font-bold transition-all cursor-pointer ${
+                        selectedZone === "dhaka"
+                          ? "border-[#df2d4d] bg-rose-50 text-[#df2d4d] shadow-xs"
+                          : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
                       }`}
                     >
-                      <p className="truncate">ঢাকা সিটির ভিতরে</p>
-                      <p className="text-[10px] sm:text-[11px] font-normal text-slate-500">চার্জ: ৳৭০</p>
+                      <p className="truncate font-black">ঢাকা সিটির ভিতরে</p>
+                      <p className="text-[10px] font-semibold text-slate-500 mt-0.5">চার্জ: ৳{rates.dhaka}</p>
                     </button>
 
+                    {/* Zone 2: Near Dhaka */}
                     <button
                       type="button"
-                      onClick={() => handleCityChange("Outside Dhaka (সারা বাংলাদেশ)")}
-                      className={`p-2 sm:p-2.5 rounded-xl border text-left font-bold transition-all ${
-                        formData.city.includes("Outside")
-                          ? "border-[#df2d4d] bg-rose-50 text-[#df2d4d]"
-                          : "border-slate-200 hover:border-slate-300 text-slate-700"
+                      onClick={() => handleZoneSelect("near_dhaka")}
+                      className={`p-2.5 rounded-xl border text-left font-bold transition-all cursor-pointer ${
+                        selectedZone === "near_dhaka"
+                          ? "border-[#df2d4d] bg-rose-50 text-[#df2d4d] shadow-xs"
+                          : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
                       }`}
                     >
-                      <p className="truncate">ঢাকার বাইরে</p>
-                      <p className="text-[10px] sm:text-[11px] font-normal text-slate-500">চার্জ: ৳১৩০</p>
+                      <p className="truncate font-black">ঢাকার আশেপাশে</p>
+                      <p className="text-[10px] font-semibold text-slate-500 mt-0.5">চার্জ: ৳{rates.nearDhaka}</p>
+                    </button>
+
+                    {/* Zone 3: Outside Dhaka */}
+                    <button
+                      type="button"
+                      onClick={() => handleZoneSelect("outside_dhaka")}
+                      className={`p-2.5 rounded-xl border text-left font-bold transition-all cursor-pointer ${
+                        selectedZone === "outside_dhaka"
+                          ? "border-[#df2d4d] bg-rose-50 text-[#df2d4d] shadow-xs"
+                          : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
+                      }`}
+                    >
+                      <p className="truncate font-black">ঢাকার বাইরে</p>
+                      <p className="text-[10px] font-semibold text-slate-500 mt-0.5">চার্জ: ৳{rates.outsideDhaka}</p>
                     </button>
                   </div>
                 </div>

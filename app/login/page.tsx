@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Lock, Mail, ArrowRight, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { adminLogin } from "@/lib/api";
 
-export default function AdminLoginPage() {
+export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-slate-200">
-        {/* Brand with Rose Logo */}
+        {/* Brand with Logo */}
         <div className="text-center mb-6">
           <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-black border-2 border-slate-800 mx-auto shadow-xl shadow-slate-950/30 mb-3">
             <Image
@@ -62,10 +62,10 @@ export default function AdminLoginPage() {
             />
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            GAXIN <span className="text-[#df2d4d]">MART</span> Admin
+            GAXIN <span className="text-[#df2d4d]">MART</span>
           </h1>
           <p className="text-xs text-slate-500 mt-1 font-medium">
-            অ্যাডমিন কন্ট্রোল প্যানেল ও লাভ-ক্ষতির হিসাব ড্যাশবোর্ড
+            অ্যাডমিন লগইন পোর্টাল (Admin Access)
           </p>
         </div>
 

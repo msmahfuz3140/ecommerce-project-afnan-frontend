@@ -13,6 +13,8 @@ import {
   RotateCcw,
   CheckCircle2,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   ZoomIn,
   ZoomOut,
   Maximize2,
@@ -99,6 +101,7 @@ export default function ProductDetailPage({
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [trackModalOpen, setTrackModalOpen] = useState(false);
+  const [showFullDesc, setShowFullDesc] = useState(false);
 
   // Zoom State
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -517,10 +520,35 @@ export default function ProductDetailPage({
                 </p>
               </div>
 
-              {/* Short Description */}
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                {product.description}
-              </p>
+              {/* Short Description with See More Toggle */}
+              {product.description && (
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                    {product.description.length > 140 && !showFullDesc
+                      ? `${product.description.slice(0, 140)}...`
+                      : product.description}
+                  </p>
+                  {product.description.length > 140 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowFullDesc((prev) => !prev)}
+                      className="text-xs font-bold text-[#df2d4d] hover:text-[#b1001f] inline-flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      {showFullDesc ? (
+                        <>
+                          <span>সংক্ষেপ করুন (See Less)</span>
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </>
+                      ) : (
+                        <>
+                          <span>আরো দেখুন (See More)</span>
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Quantity Selector */}
               <div className="flex items-center gap-3 pt-1">

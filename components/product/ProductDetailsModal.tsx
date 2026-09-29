@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { X, Zap, ShoppingCart, ShieldCheck, Truck, RotateCcw } from "lucide-react";
+import { X, Zap, ShoppingCart, ShieldCheck, Truck, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
 import { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { WhatsAppIcon, getWhatsAppUrl, WHATSAPP_NUMBER } from "@/components/ui/WhatsAppButton";
@@ -30,6 +30,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
   const { addToCart, openDirectCheckout } = useCart();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [showFullDesc, setShowFullDesc] = useState(false);
 
   if (!product) return null;
 
@@ -146,10 +147,35 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
                 )}
               </div>
 
-              {/* Description */}
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                {product.description}
-              </p>
+              {/* Description with See More Toggle */}
+              {product.description && (
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                    {product.description.length > 120 && !showFullDesc
+                      ? `${product.description.slice(0, 120)}...`
+                      : product.description}
+                  </p>
+                  {product.description.length > 120 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowFullDesc((prev) => !prev)}
+                      className="text-xs font-bold text-[#df2d4d] hover:text-[#b1001f] inline-flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      {showFullDesc ? (
+                        <>
+                          <span>সংক্ষেপ করুন (See Less)</span>
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </>
+                      ) : (
+                        <>
+                          <span>আরো দেখুন (See More)</span>
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Specifications */}
               {product.specifications && Object.keys(product.specifications).length > 0 && (
