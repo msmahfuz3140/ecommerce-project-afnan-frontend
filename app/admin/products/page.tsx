@@ -278,11 +278,11 @@ export default function AdminProductsPage() {
       }
 
       if (res && res.success) {
-        setMessage("পণ্য সফলভাবে ডাটাবেজে সংরক্ষিত হয়েছে!");
-        setTimeout(() => {
+        setMessage(res.message || "পণ্য সফলভাবে ডাটাবেজে সংরক্ষিত হয়েছে!");
+        setTimeout(async () => {
           setIsModalOpen(false);
-          loadProductsList();
-        }, 700);
+          await loadProductsList();
+        }, 500);
       } else {
         alert(res?.message || "পণ্য সংরক্ষণ করা সম্ভব হয়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।");
       }
@@ -304,11 +304,14 @@ export default function AdminProductsPage() {
     setDeleteLoading(true);
     setDeleteError(null);
     try {
-      const res = await adminDeleteProduct(deletingProduct._id);
+      const deletedId = deletingProduct._id;
+      const res = await adminDeleteProduct(deletedId);
       if (res && res.success === false) {
         setDeleteError(res.message || "পণ্য ডিলিট করা যায়নি");
         return;
       }
+      // Optimistically remove from table immediately
+      setProducts((prev) => prev.filter((p) => p._id !== deletedId));
       setDeletingProduct(null);
       await loadProductsList();
     } catch (err: any) {

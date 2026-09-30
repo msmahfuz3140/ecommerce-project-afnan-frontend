@@ -13,31 +13,27 @@ import {
 export const LIVE_BACKEND_API = "https://ecommerce-project-afnan-backend.vercel.app/api";
 
 export const getApiBaseUrl = (): string => {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
 
   // In browser
   if (typeof window !== "undefined") {
+    if (envUrl && envUrl !== "") {
+      return envUrl.replace(/\/$/, "");
+    }
+
     const isLocalhost =
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1";
 
-    // If on local development (http://localhost:3000)
     if (isLocalhost) {
-      if (envUrl && (envUrl.includes("localhost") || envUrl.includes("127.0.0.1"))) {
-        return envUrl.replace(/\/$/, "");
-      }
       return "http://localhost:5001/api";
     }
 
-    // On Production (https://www.gaxinmart.shop, https://gaxinmart.shop, or Vercel preview)
-    if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
-      return envUrl.replace(/\/$/, "");
-    }
     return LIVE_BACKEND_API;
   }
 
   // On Server-Side (Next.js SSR / Server Components / ISR)
-  if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
+  if (envUrl && envUrl !== "") {
     return envUrl.replace(/\/$/, "");
   }
   return LIVE_BACKEND_API;
@@ -68,6 +64,7 @@ export const fetchProducts = async (
     search?: string;
     isOffer?: boolean;
     sort?: string;
+    limit?: number;
   } = {}
 ) => {
   const baseUrl = getApiBaseUrl();
@@ -76,6 +73,7 @@ export const fetchProducts = async (
   if (params.search) query.append("search", params.search);
   if (params.isOffer) query.append("isOffer", "true");
   if (params.sort) query.append("sort", params.sort);
+  query.append("limit", String(params.limit || 100));
 
   try {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
@@ -95,9 +93,10 @@ export const fetchProducts = async (
         return data;
       }
     }
-    throw new Error("Empty or failed remote response");
+    throw new Error(`Empty or failed remote response (Status ${res.status})`);
   } catch (error) {
-    // Graceful fallback to rich GAXIN MART mock data (guarantees Vercel displays everything!)
+    console.warn("Using fallback products due to API response:", error);
+    // Graceful fallback to GAXIN MART mock data
     const isAdmin = Boolean(getAdminToken());
     const fallbackList = isAdmin ? getAdminProducts(params) : getPublicProducts(params);
 
@@ -431,7 +430,7 @@ export const adminCreateProduct = async (productData: any) => {
 export const adminUpdateProduct = async (id: string, productData: any) => {
   const baseUrl = getApiBaseUrl();
   try {
-    const res = await fetch(`${baseUrl}/products/${id}`, {
+    const res = await fetch(`${baseUrl}/products/${encodeURIComponent(id.trim())}`, {
       method: "PUT",
       headers: authHeaders(),
       body: JSON.stringify(productData),
@@ -450,7 +449,7 @@ export const adminUpdateProduct = async (id: string, productData: any) => {
 export const adminDeleteProduct = async (id: string) => {
   const baseUrl = getApiBaseUrl();
   try {
-    const res = await fetch(`${baseUrl}/products/${id}`, {
+    const res = await fetch(`${baseUrl}/products/${encodeURIComponent(id.trim())}`, {
       method: "DELETE",
       headers: authHeaders(),
     });
