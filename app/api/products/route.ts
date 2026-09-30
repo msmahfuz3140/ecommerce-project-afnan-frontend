@@ -1,32 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPublicProducts, getAdminProducts } from "@/lib/mockData";
+import { LIVE_BACKEND_API } from "@/lib/api";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category") || undefined;
-    const search = searchParams.get("search") || undefined;
-    const isOffer = searchParams.get("isOffer") === "true";
-    const sort = searchParams.get("sort") || undefined;
-
-    // Check if admin token is sent in header
     const authHeader = request.headers.get("authorization");
-    const isAdmin = Boolean(authHeader && authHeader.startsWith("Bearer "));
 
-    const products = isAdmin
-      ? getAdminProducts({ category, search, sort })
-      : getPublicProducts({ category, search, isOffer, sort });
+    const headers: Record<string, string> = {
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+    };
+    if (authHeader) {
+      headers["Authorization"] = authHeader;
+    }
+
+    const res = await fetch(`${LIVE_BACKEND_API}/products?${searchParams.toString()}`, {
+      cache: "no-store",
+      headers,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return NextResponse.json(data, {
+        status: 200,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      count: products.length,
-      total: products.length,
-      products,
+      count: 0,
+      total: 0,
+      products: [],
     });
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, message: error.message || "Failed to fetch products" },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: true,
+      count: 0,
+      total: 0,
+      products: [],
+    });
   }
 }
