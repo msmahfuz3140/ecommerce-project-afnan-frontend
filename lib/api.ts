@@ -74,6 +74,7 @@ export const fetchProducts = async (
   if (params.isOffer) query.append("isOffer", "true");
   if (params.sort) query.append("sort", params.sort);
   query.append("limit", String(params.limit || 100));
+  query.append("_t", String(Date.now()));
 
   try {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
@@ -81,7 +82,11 @@ export const fetchProducts = async (
 
     const res = await fetch(`${baseUrl}/products?${query.toString()}`, {
       cache: "no-store",
-      headers: authHeaders(),
+      headers: {
+        ...authHeaders(),
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+      },
       signal: controller ? controller.signal : undefined,
     });
 

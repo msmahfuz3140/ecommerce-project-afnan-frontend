@@ -83,14 +83,19 @@ export default function AdminProductsPage() {
     offerEndTime: "",
   });
 
-  const loadProductsList = async () => {
-    setLoading(true);
+  const loadProductsList = async (targetCategory?: string, targetSearch?: string, isSilent = false) => {
+    if (!isSilent && products.length === 0) {
+      setLoading(true);
+    }
+    const cat = targetCategory !== undefined ? targetCategory : categoryFilter;
+    const q = targetSearch !== undefined ? targetSearch : search;
+
     try {
       const res = await fetchProducts({
-        category: categoryFilter !== "all" ? categoryFilter : undefined,
-        search: search || undefined,
+        category: cat !== "all" ? cat : undefined,
+        search: q || undefined,
       });
-      if (res && res.products) {
+      if (res && res.products && Array.isArray(res.products)) {
         setProducts(res.products);
       }
     } catch (err) {
@@ -101,7 +106,7 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
-    loadProductsList();
+    loadProductsList(categoryFilter, search);
   }, [categoryFilter, search]);
 
   const openAddModal = () => {
@@ -278,11 +283,32 @@ export default function AdminProductsPage() {
       }
 
       if (res && res.success) {
-        setMessage(res.message || "পণ্য সফলভাবে ডাটাবেজে সংরক্ষিত হয়েছে!");
-        setTimeout(async () => {
-          setIsModalOpen(false);
-          await loadProductsList();
-        }, 500);
+        if (editingProduct) {
+          const updated: Product = res.product || {
+            ...editingProduct,
+            ...payload,
+            updatedAt: new Date().toISOString(),
+          };
+          setProducts((prev) =>
+            prev.map((p) => (p._id === editingProduct._id ? updated : p))
+          );
+        } else if (res.product) {
+          const newProd: Product = res.product;
+          // Immediately insert new product at the beginning of the list
+          setProducts((prev) => [
+            newProd,
+            ...prev.filter((p) => p._id !== newProd._id),
+          ]);
+        }
+
+        // Reset filter and search so new product is guaranteed visible immediately
+        setCategoryFilter("all");
+        setSearch("");
+        setIsModalOpen(false);
+        setMessage("");
+
+        // Silently sync from database in background
+        await loadProductsList("all", "", true);
       } else {
         alert(res?.message || "পণ্য সংরক্ষণ করা সম্ভব হয়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।");
       }
@@ -313,7 +339,7 @@ export default function AdminProductsPage() {
       // Optimistically remove from table immediately
       setProducts((prev) => prev.filter((p) => p._id !== deletedId));
       setDeletingProduct(null);
-      await loadProductsList();
+      await loadProductsList(categoryFilter, search, true);
     } catch (err: any) {
       console.error("Delete failed:", err);
       setDeleteError(err.message || "পণ্য ডিলিট করতে সমস্যা হয়েছে");
