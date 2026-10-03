@@ -70,25 +70,11 @@ export interface OrderRecord {
 // Products are managed strictly via MongoDB database
 export const initialProducts: ProductItem[] = [];
 
-// Helper to get active product list (with localStorage additions if in browser)
+// Helper to get active product list - strictly database only
 export function getAllProducts(): ProductItem[] {
   if (typeof window !== "undefined") {
     try {
-      const stored = localStorage.getItem("gaxinmart_custom_products");
-      if (stored) {
-        const customProds = JSON.parse(stored);
-        if (Array.isArray(customProds) && customProds.length > 0) {
-          // Merge custom products with initial products (custom first or overriding)
-          const merged = [...customProds];
-          const customIds = new Set(customProds.map((p) => p._id));
-          for (const p of initialProducts) {
-            if (!customIds.has(p._id)) {
-              merged.push(p);
-            }
-          }
-          return merged;
-        }
-      }
+      localStorage.removeItem("gaxinmart_custom_products");
     } catch (e) {
       // ignore
     }

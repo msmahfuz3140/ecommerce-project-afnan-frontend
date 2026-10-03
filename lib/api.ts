@@ -82,11 +82,7 @@ export const fetchProducts = async (
 
     const res = await fetch(`${baseUrl}/products?${query.toString()}`, {
       cache: "no-store",
-      headers: {
-        ...authHeaders(),
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        Pragma: "no-cache",
-      },
+      headers: authHeaders(),
       signal: controller ? controller.signal : undefined,
     });
 
