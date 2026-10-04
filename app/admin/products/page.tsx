@@ -27,6 +27,7 @@ import {
   adminDeleteProduct,
   adminUploadMedia,
 } from "@/lib/api";
+import { compressImageFile } from "@/lib/imageOptimizer";
 import { Product } from "@/types";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
@@ -240,7 +241,8 @@ export default function AdminProductsPage() {
 
     setUploadingImage(true);
     try {
-      const res = await adminUploadMedia(file);
+      const optimizedFile = await compressImageFile(file);
+      const res = await adminUploadMedia(optimizedFile);
       if (res.success && res.url) {
         setFormData((prev) => ({ ...prev, image: res.url }));
       } else {
@@ -831,7 +833,7 @@ export default function AdminProductsPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    ছবি আপলোড (Cloudinary Upload)
+                    পণ্যের ছবি আপলোড
                   </label>
                   <label className="cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-rose-300 bg-rose-50/50 hover:bg-rose-50 text-xs text-[#df2d4d] font-bold transition-colors">
                     {uploadingImage ? (
@@ -839,7 +841,7 @@ export default function AdminProductsPage() {
                     ) : (
                       <Upload className="w-4 h-4" />
                     )}
-                    <span>{uploadingImage ? "Cloudinary তে আপলোড হচ্ছে..." : "ছবি সিলেক্ট করুন (File Pick)"}</span>
+                    <span>{uploadingImage ? "ছবি আপলোড হচ্ছে..." : "ছবি সিলেক্ট করুন (File Pick)"}</span>
                     <input
                       type="file"
                       accept="image/*"

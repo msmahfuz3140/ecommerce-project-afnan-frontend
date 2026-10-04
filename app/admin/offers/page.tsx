@@ -19,6 +19,7 @@ import {
   adminDeleteOffer,
   adminUploadMedia,
 } from "@/lib/api";
+import { compressImageFile } from "@/lib/imageOptimizer";
 import { Offer } from "@/types";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
@@ -69,7 +70,8 @@ export default function AdminOffersPage() {
 
     setUploadingImage(true);
     try {
-      const res = await adminUploadMedia(file);
+      const optimizedFile = await compressImageFile(file);
+      const res = await adminUploadMedia(optimizedFile);
       if (res.success && res.url) {
         setFormData((prev) => ({ ...prev, bannerImage: res.url }));
       }
@@ -363,7 +365,7 @@ export default function AdminOffersPage() {
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">
-                      ব্যানার ছবি আপলোড (Cloudinary)
+                      ব্যানার ছবি আপলোড
                     </label>
                     <label className="cursor-pointer flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-rose-300 bg-rose-50/50 hover:bg-rose-50 text-xs text-[#df2d4d] font-bold">
                       {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}

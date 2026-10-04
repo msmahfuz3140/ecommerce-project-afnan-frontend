@@ -67,7 +67,7 @@ export interface OrderRecord {
   createdAt: string;
 }
 
-// Products are managed strictly via MongoDB database
+// Products are managed strictly via secure cloud database
 export const initialProducts: ProductItem[] = [];
 
 // Helper to get active product list - strictly database only
