@@ -19,6 +19,8 @@ import {
   EyeOff,
   Clock,
   Calendar,
+  Image as ImageIcon,
+  Star,
 } from "lucide-react";
 import {
   fetchProducts,
@@ -68,7 +70,24 @@ export default function AdminProductsPage() {
     }
   };
 
-  const [formData, setFormData] = useState({
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const [uploadProgress, setUploadProgress] = useState("");
+
+  const [formData, setFormData] = useState<{
+    name: string;
+    category: string;
+    subCategory: string;
+    buyPrice: string;
+    sellPrice: string;
+    originalPrice: string;
+    discountPercent: string;
+    stock: string;
+    description: string;
+    images: string[];
+    isOffer: boolean;
+    offerBadge: string;
+    offerEndTime: string;
+  }>({
     name: "",
     category: "mens-fashion",
     subCategory: "",
@@ -78,7 +97,7 @@ export default function AdminProductsPage() {
     discountPercent: "",
     stock: "50",
     description: "",
-    image: "",
+    images: [],
     isOffer: false,
     offerBadge: "",
     offerEndTime: "",
@@ -112,6 +131,8 @@ export default function AdminProductsPage() {
 
   const openAddModal = () => {
     setEditingProduct(null);
+    setNewImageUrl("");
+    setUploadProgress("");
     setFormData({
       name: "",
       category: "mens-fashion",
@@ -122,7 +143,7 @@ export default function AdminProductsPage() {
       discountPercent: "",
       stock: "50",
       description: "",
-      image: "",
+      images: [],
       isOffer: false,
       offerBadge: "",
       offerEndTime: "",
@@ -133,9 +154,15 @@ export default function AdminProductsPage() {
 
   const openEditModal = (prod: Product) => {
     setEditingProduct(prod);
+    setNewImageUrl("");
+    setUploadProgress("");
     const orig = prod.originalPrice || 0;
     const sell = prod.sellPrice || 0;
     const disc = orig > sell && orig > 0 ? Math.round(((orig - sell) / orig) * 100) : 0;
+
+    const prodImages = Array.isArray(prod.images) && prod.images.length > 0
+      ? [...prod.images]
+      : [];
 
     setFormData({
       name: prod.name,
@@ -147,7 +174,7 @@ export default function AdminProductsPage() {
       discountPercent: disc > 0 ? String(disc) : "",
       stock: String(prod.stock || "50"),
       description: prod.description || "",
-      image: prod.images[0] || "",
+      images: prodImages,
       isOffer: prod.isOffer || false,
       offerBadge: prod.offerBadge || (disc > 0 ? `${disc}% OFF` : ""),
       offerEndTime: formatForDateTimeInput(prod.offerEndTime),
@@ -236,30 +263,84 @@ export default function AdminProductsPage() {
   };
 
   const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length === 0) return;
 
     setUploadingImage(true);
+    setUploadProgress(`১/${files.length} আপলোড হচ্ছে...`);
+
     try {
-      const optimizedFile = await compressImageFile(file);
-      const res = await adminUploadMedia(optimizedFile);
-      if (res.success && res.url) {
-        setFormData((prev) => ({ ...prev, image: res.url }));
+      const uploadedUrls: string[] = [];
+      let count = 0;
+
+      for (const file of files) {
+        count++;
+        setUploadProgress(`${count}/${files.length} প্রসেস হচ্ছে...`);
+        try {
+          const optimizedFile = await compressImageFile(file);
+          const res = await adminUploadMedia(optimizedFile);
+          if (res.success && res.url) {
+            uploadedUrls.push(res.url);
+          }
+        } catch (fileErr) {
+          console.error("Individual file upload error:", fileErr);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          images: [...prev.images, ...uploadedUrls],
+        }));
       } else {
-        alert(res.message || "ছবি আপলোড ব্যর্থ হয়েছে");
+        alert("ছবি আপলোড হতে সমস্যা হয়েছে, অনুগ্রহ করে পুনরায় চেষ্টা করুন।");
       }
     } catch (err) {
       console.error("Image upload failed:", err);
       alert("ছবি আপলোড হতে সমস্যা হয়েছে");
     } finally {
       setUploadingImage(false);
+      setUploadProgress("");
+      e.target.value = "";
     }
+  };
+
+  const handleMakeCover = (index: number) => {
+    if (index <= 0) return;
+    setFormData((prev) => {
+      const updated = [...prev.images];
+      const [chosen] = updated.splice(index, 1);
+      return { ...prev, images: [chosen, ...updated] };
+    });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddManualImageUrl = () => {
+    const trimmed = newImageUrl.trim();
+    if (!trimmed) return;
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, trimmed],
+    }));
+    setNewImageUrl("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setMessage("");
+
+    if (formData.images.length === 0) {
+      alert("অনুগ্রহ করে পণ্যের অন্তত একটি ছবি যোগ করুন।");
+      setSubmitting(false);
+      return;
+    }
 
     const payload = {
       name: formData.name.trim(),
@@ -270,7 +351,7 @@ export default function AdminProductsPage() {
       originalPrice: Number(formData.originalPrice) || Number(formData.sellPrice) || 0,
       stock: Number(formData.stock) || 50,
       description: formData.description.trim() || formData.name.trim(),
-      images: formData.image ? [formData.image] : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"],
+      images: formData.images,
       isOffer: formData.isOffer,
       offerBadge: formData.offerBadge.trim(),
       offerEndTime: formData.isOffer && formData.offerEndTime ? new Date(formData.offerEndTime).toISOString() : undefined,
@@ -460,6 +541,11 @@ export default function AdminProductsPage() {
                           sizes="56px"
                           className="object-cover"
                         />
+                        {prod.images.length > 1 && (
+                          <span className="absolute bottom-0 right-0 bg-slate-900/85 text-white text-[9px] font-bold px-1 py-0.5 rounded-tl">
+                            +{prod.images.length - 1}
+                          </span>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-1">{prod.name}</h4>
@@ -544,6 +630,11 @@ export default function AdminProductsPage() {
                               sizes="44px"
                               className="object-cover"
                             />
+                            {prod.images.length > 1 && (
+                              <span className="absolute bottom-0 right-0 bg-slate-900/85 text-white text-[8px] font-bold px-1 py-0.5 rounded-tl">
+                                +{prod.images.length - 1}
+                              </span>
+                            )}
                           </div>
                           <div>
                             <p className="font-bold text-slate-900 line-clamp-1">{prod.name}</p>
@@ -817,75 +908,154 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Stock & Image */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    স্টক পরিমাণ <span className="text-slate-400 font-normal">(অ্যাডমিনের জন্য)</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 bg-white"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    * কাস্টমারকে সংখ্যা দেখানো হবে না, শুধুমাত্র &ldquo;ইন স্টক&rdquo; দেখাবে।
-                  </p>
+              {/* Stock */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  স্টক পরিমাণ <span className="text-slate-400 font-normal">(অ্যাডমিনের জন্য)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.stock}
+                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 bg-white"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">
+                  * কাস্টমারকে সংখ্যা দেখানো হবে না, শুধুমাত্র &ldquo;ইন স্টক&rdquo; দেখাবে।
+                </p>
+              </div>
+
+              {/* Multi-Image Gallery Manager */}
+              <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div>
+                    <h3 className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-[#df2d4d]" />
+                      পণ্যের ছবিসমূহ (Product Images Gallery)
+                      <span className="text-[#df2d4d]">*</span>
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      একসাথে একাধিক ছবি সিলেক্ট করে আপলোড করতে পারবেন। প্রথম ছবিটি প্রধান কভার ছবি হিসেবে দেখাবে।
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-600 bg-white px-2.5 py-1 rounded-lg border w-fit">
+                    মোট ছবি: {formData.images.length} টি
+                  </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    পণ্যের ছবি আপলোড
-                  </label>
-                  <label className="cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-rose-300 bg-rose-50/50 hover:bg-rose-50 text-xs text-[#df2d4d] font-bold transition-colors">
+                {/* Upload Button & Manual URL Input */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <label className="cursor-pointer flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-dashed border-rose-300 bg-rose-50/60 hover:bg-rose-50 text-xs text-[#df2d4d] font-bold transition-all shadow-sm">
                     {uploadingImage ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <Upload className="w-4 h-4" />
                     )}
-                    <span>{uploadingImage ? "ছবি আপলোড হচ্ছে..." : "ছবি সিলেক্ট করুন (File Pick)"}</span>
+                    <span>
+                      {uploadingImage
+                        ? uploadProgress || "ছবি আপলোড হচ্ছে..."
+                        : "গ্যালারি থেকে একাধিক ছবি আপলোড করুন"}
+                    </span>
                     <input
                       type="file"
                       accept="image/*"
+                      multiple
+                      disabled={uploadingImage}
                       onChange={handleImageFileUpload}
                       className="hidden"
                     />
                   </label>
-                </div>
-              </div>
 
-              {/* Image URL preview */}
-              {formData.image && (
-                <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                  <div className="relative w-12 h-12 rounded-lg bg-white border overflow-hidden shrink-0">
-                    <Image
-                      src={getOptimizedCloudinaryUrl(formData.image, 100)}
-                      alt=""
-                      fill
-                      loading="lazy"
-                      sizes="48px"
-                      className="object-cover"
+                  {/* Manual URL input */}
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="url"
+                      value={newImageUrl}
+                      onChange={(e) => setNewImageUrl(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddManualImageUrl();
+                        }
+                      }}
+                      placeholder="বা ছবির লিংক পেস্ট করুন..."
+                      className="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white text-slate-900"
                     />
+                    <button
+                      type="button"
+                      onClick={handleAddManualImageUrl}
+                      disabled={!newImageUrl.trim()}
+                      className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 disabled:opacity-40 text-white text-xs font-bold transition-colors shrink-0"
+                    >
+                      যোগ করুন
+                    </button>
                   </div>
-                  <input
-                    type="text"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    placeholder="Image URL"
-                    className="flex-1 text-xs text-slate-600 bg-transparent border-0 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, image: "" })}
-                    className="text-slate-400 hover:text-rose-600 text-xs p-1"
-                    title="ছবি বাদ দিন"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
                 </div>
-              )}
+
+                {/* Images Preview List */}
+                {formData.images.length === 0 ? (
+                  <div className="p-4 rounded-xl border border-dashed border-amber-300 bg-amber-50/60 text-center">
+                    <p className="text-xs font-semibold text-amber-800">
+                      ⚠️ এখনও কোনো ছবি যোগ করা হয়নি। পণ্যের অন্তত একটি ছবি যোগ করা আবশ্যক।
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-1">
+                    {formData.images.map((imgUrl, index) => {
+                      const isCover = index === 0;
+                      return (
+                        <div
+                          key={`${imgUrl}-${index}`}
+                          className={`relative rounded-xl border-2 p-1.5 bg-white transition-all group flex flex-col justify-between ${
+                            isCover ? "border-[#df2d4d] shadow-sm shadow-rose-100" : "border-slate-200 hover:border-slate-300"
+                          }`}
+                        >
+                          {/* Image preview */}
+                          <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-slate-100">
+                            <Image
+                              src={getOptimizedCloudinaryUrl(imgUrl, 150)}
+                              alt={`Product image ${index + 1}`}
+                              fill
+                              loading="lazy"
+                              sizes="120px"
+                              className="object-cover"
+                            />
+                            {isCover && (
+                              <span className="absolute top-1 left-1 bg-[#df2d4d] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow flex items-center gap-0.5">
+                                <Star className="w-2.5 h-2.5 fill-current" /> কভার ছবি
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(index)}
+                              className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 hover:bg-rose-600 text-white flex items-center justify-center transition-colors shadow"
+                              title="ছবি মুছে ফেলুন"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          {/* Action footer */}
+                          <div className="mt-1.5 flex items-center justify-between text-[10px]">
+                            <span className="text-slate-400 font-mono">#{index + 1}</span>
+                            {!isCover ? (
+                              <button
+                                type="button"
+                                onClick={() => handleMakeCover(index)}
+                                className="text-[#df2d4d] hover:underline font-bold"
+                              >
+                                কভার করুন
+                              </button>
+                            ) : (
+                              <span className="text-emerald-600 font-bold">প্রধান ছবি</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
               {/* Description */}
               <div>

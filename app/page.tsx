@@ -80,6 +80,23 @@ function HomeContent() {
     loadData();
   }, [categoryParam, searchQuery, isOfferParam, sortBy]);
 
+  // Auto scroll to products section when category is selected or redirected from hero banner
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isHashTarget = window.location.hash === "#products-section";
+      const isSpecificFilter = (categoryParam !== "all" || isOfferParam) && !searchQuery;
+      if (isHashTarget || isSpecificFilter) {
+        const timer = setTimeout(() => {
+          const el = document.getElementById("products-section");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 200);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [categoryParam, isOfferParam, searchQuery]);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       {/* Navbar with notice ticker and track order modal trigger */}
@@ -106,7 +123,7 @@ function HomeContent() {
         )}
 
         {/* Main Products Grid & Section */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div id="products-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 scroll-mt-6">
           {/* Section Header with Sort Controls */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-200">
             <div>

@@ -367,6 +367,51 @@ export default function AdminOffersPage() {
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">
+                      টার্গেট ক্যাটাগরি (ব্যানারে ক্লিক করলে কোন ক্যাটাগরিতে নিয়ে যাবে) <span className="text-[#df2d4d]">*</span>
+                    </label>
+                    <select
+                      value={
+                        [
+                          "/?category=womens-fashion",
+                          "/?category=gadgets-electronics",
+                          "/?category=mens-fashion",
+                          "/?category=home-lifestyle",
+                          "/?category=kids-zone",
+                          "/?isOffer=true",
+                          "/?category=all",
+                        ].includes(formData.link)
+                          ? formData.link
+                          : "custom"
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val !== "custom") {
+                          setFormData({ ...formData, link: val });
+                        }
+                      }}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white text-slate-800 font-semibold mb-1.5"
+                    >
+                      <option value="/?category=womens-fashion">👗 মহিলাদের ফ্যাশন / ড্রেস (Women&apos;s Fashion / Dress)</option>
+                      <option value="/?category=gadgets-electronics">⚡ গ্যাজেটস ও ইলেকট্রনিক্স (Gadgets & Electronics)</option>
+                      <option value="/?category=mens-fashion">👔 পুরুষদের ফ্যাশন (Men&apos;s Fashion)</option>
+                      <option value="/?category=home-lifestyle">🏠 হোম ও লাইফস্টাইল (Home & Lifestyle)</option>
+                      <option value="/?category=kids-zone">🧸 কিডস জোন (Kids Zone)</option>
+                      <option value="/?isOffer=true">🔥 স্পেশাল অফার (Hot Offers)</option>
+                      <option value="/?category=all">📦 সকল পণ্য (All Products)</option>
+                      <option value="custom">🔗 কাস্টম পেজ লিংক (Custom URL)</option>
+                    </select>
+
+                    <input
+                      type="text"
+                      value={formData.link}
+                      onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                      placeholder="যেমন: /?category=womens-fashion"
+                      className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono text-slate-700 bg-slate-50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
                       ব্যানার ছবি আপলোড
                     </label>
                     <label className="cursor-pointer flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-rose-300 bg-rose-50/50 hover:bg-rose-50 text-xs text-[#df2d4d] font-bold">
