@@ -67,7 +67,14 @@ export const Footer: React.FC = () => {
         <div className="space-y-4">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-black border border-slate-700">
-              <Image src="/gaxin-mart-logo.jpg" alt="GAXIN MART Logo" fill className="object-cover" />
+              <Image
+                src="/gaxin-mart-logo.jpg"
+                alt="GAXIN MART Logo"
+                fill
+                loading="lazy"
+                sizes="40px"
+                className="object-cover"
+              />
             </div>
             <span className="text-2xl font-black tracking-tight text-white">
               GAXIN <span className="text-[#df2d4d]">MART</span>

@@ -27,6 +27,7 @@ import { useCart, CartItem } from "@/context/CartContext";
 import { createOrder, fetchProduct, fetchDeliverySettings } from "@/lib/api";
 import { Product } from "@/types";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppButton";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 function CheckoutContent() {
   const router = useRouter();
@@ -461,9 +462,11 @@ function CheckoutContent() {
                       <div className="flex items-center gap-3 sm:gap-4 flex-1">
                         <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0">
                           <Image
-                            src={item.product.images[0] || ""}
+                            src={getOptimizedCloudinaryUrl(item.product.images[0], 160) || ""}
                             alt={item.product.name}
                             fill
+                            loading="lazy"
+                            sizes="(max-width: 640px) 64px, 80px"
                             className="object-cover"
                           />
                         </div>

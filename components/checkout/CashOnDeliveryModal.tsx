@@ -17,6 +17,7 @@ import {
 import { useCart } from "@/context/CartContext";
 import { createOrder, fetchDeliverySettings } from "@/lib/api";
 import { WhatsAppIcon, WHATSAPP_NUMBER } from "@/components/ui/WhatsAppButton";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 export const CashOnDeliveryModal: React.FC = () => {
   const {
@@ -312,7 +313,14 @@ export const CashOnDeliveryModal: React.FC = () => {
                     <div key={item.product._id} className="pt-1.5 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2 truncate pr-2">
                         <div className="relative w-8 h-8 rounded bg-white border shrink-0 overflow-hidden">
-                          <Image src={item.product.images[0] || ""} alt="" fill className="object-cover" />
+                          <Image
+                            src={getOptimizedCloudinaryUrl(item.product.images[0], 64) || ""}
+                            alt=""
+                            fill
+                            loading="lazy"
+                            sizes="32px"
+                            className="object-cover"
+                          />
                         </div>
                         <span className="font-medium text-slate-800 truncate">{item.product.name}</span>
                         <span className="text-slate-400 font-bold shrink-0">x{item.quantity}</span>

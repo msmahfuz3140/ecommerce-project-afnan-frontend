@@ -102,6 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   alt="GAXIN MART Logo"
                   fill
                   priority
+                  sizes="(max-width: 640px) 32px, 48px"
                   className="object-cover"
                 />
               </div>
@@ -270,7 +271,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-2">
                   <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-black border border-slate-800">
-                    <Image src="/gaxin-mart-logo.jpg" alt="" fill className="object-cover" />
+                    <Image
+                      src="/gaxin-mart-logo.jpg"
+                      alt=""
+                      fill
+                      loading="lazy"
+                      sizes="32px"
+                      className="object-cover"
+                    />
                   </div>
                   <span className="font-black text-base text-slate-900">GAXIN MART</span>
                 </div>

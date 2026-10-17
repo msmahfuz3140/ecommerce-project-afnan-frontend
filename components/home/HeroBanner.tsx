@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Zap, ArrowRight } from "lucide-react";
 import { Offer } from "@/types";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 interface HeroBannerProps {
   banners: Offer[];
@@ -79,10 +80,12 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ banners }) => {
             {/* Background Image */}
             <div className="absolute inset-0">
               <Image
-                src={banner.bannerImage || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80"}
+                src={getOptimizedCloudinaryUrl(banner.bannerImage) || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80"}
                 alt={banner.title}
                 fill
                 priority={idx === 0}
+                loading={idx === 0 ? undefined : "lazy"}
+                sizes="100vw"
                 className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-transparent" />

@@ -58,6 +58,7 @@ export default function LoginPage() {
               alt="GAXIN MART Logo"
               fill
               priority
+              sizes="64px"
               className="object-cover"
             />
           </div>

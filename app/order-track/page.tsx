@@ -22,6 +22,7 @@ import { Footer } from "@/components/layout/Footer";
 import { trackOrder } from "@/lib/api";
 import { Order, OrderStatus } from "@/types";
 import { WhatsAppIcon, WHATSAPP_NUMBER } from "@/components/ui/WhatsAppButton";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 function OrderTrackContent() {
   const searchParams = useSearchParams();
@@ -328,7 +329,14 @@ function OrderTrackContent() {
                             <div className="flex items-center gap-3 truncate pr-3">
                               {it.image && (
                                 <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0">
-                                  <Image src={it.image} alt="" fill className="object-cover" />
+                                  <Image
+                                    src={getOptimizedCloudinaryUrl(it.image, 100)}
+                                    alt=""
+                                    fill
+                                    loading="lazy"
+                                    sizes="40px"
+                                    className="object-cover"
+                                  />
                                 </div>
                               )}
                               <div className="truncate">

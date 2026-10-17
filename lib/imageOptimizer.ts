@@ -1,21 +1,22 @@
 /**
- * High-performance client-side image optimizer using Canvas API.
- * Resizes images to max 1200px and compresses to WebP/JPEG format,
- * reducing 5MB-15MB phone camera pictures to ~60KB-140KB before upload.
+ * High-performance client-side image optimizer using HTML Canvas API.
+ * Resizes images to max 1200px and compresses to JPEG format,
+ * reducing 5MB-15MB phone camera pictures to ~40KB-90KB before upload
+ * to preserve Cloudinary storage & bandwidth limits.
  */
 export const compressImageFile = async (
   file: File,
   maxWidth = 1200,
   maxHeight = 1200,
-  quality = 0.82
+  quality = 0.80
 ): Promise<File> => {
-  // If file is not an image or is already tiny (< 150KB), return as is
-  if (!file.type.startsWith("image/") || file.size < 150 * 1024) {
+  // If file is not an image, return as is
+  if (!file.type.startsWith("image/")) {
     return file;
   }
 
   // If running in environment without browser APIs
-  if (typeof window === "undefined" || !window.createImageBitmap && !window.FileReader) {
+  if (typeof window === "undefined" || (!window.createImageBitmap && !window.FileReader)) {
     return file;
   }
 
@@ -50,18 +51,21 @@ export const compressImageFile = async (
           return resolve(file);
         }
 
-        // Draw and compress
+        // Fill background with white in case of transparent PNG converted to JPEG
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw and compress to JPEG format
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Prefer WebP for modern browsers, fallback to JPEG
-        const outputMime = "image/webp";
+        const outputMime = "image/jpeg";
 
         canvas.toBlob(
           (blob) => {
-            if (!blob || blob.size >= file.size) {
+            if (!blob) {
               return resolve(file);
             }
-            const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+            const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
             const optimizedFile = new File([blob], cleanName, {
               type: outputMime,
               lastModified: Date.now(),
@@ -80,4 +84,27 @@ export const compressImageFile = async (
     reader.onerror = () => resolve(file);
     reader.readAsDataURL(file);
   });
+};
+
+/**
+ * Optimizes Cloudinary media URLs for maximum browser caching and minimal bandwidth.
+ * Injects automatic format negotiation (AVIF/WebP) and automatic quality compression.
+ */
+export const getOptimizedCloudinaryUrl = (
+  url?: string,
+  width?: number,
+  quality = "auto:good"
+): string => {
+  if (!url || typeof url !== "string") return url || "";
+
+  // If not a Cloudinary URL or already contains transformations, return directly
+  if (!url.includes("res.cloudinary.com") || url.includes("/f_auto,q_auto") || url.includes("/f_auto/")) {
+    return url;
+  }
+
+  const transform = width
+    ? `f_auto,q_${quality},w_${width},c_limit`
+    : `f_auto,q_${quality}`;
+
+  return url.replace("/upload/", `/upload/${transform}/`);
 };

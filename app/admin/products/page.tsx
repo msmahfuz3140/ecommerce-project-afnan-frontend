@@ -27,7 +27,7 @@ import {
   adminDeleteProduct,
   adminUploadMedia,
 } from "@/lib/api";
-import { compressImageFile } from "@/lib/imageOptimizer";
+import { compressImageFile, getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 import { Product } from "@/types";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
@@ -453,9 +453,11 @@ export default function AdminProductsPage() {
                     <div className="flex items-center gap-3">
                       <div className="relative w-14 h-14 rounded-xl bg-slate-50 border overflow-hidden shrink-0">
                         <Image
-                          src={prod.images[0] || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
+                          src={getOptimizedCloudinaryUrl(prod.images[0], 120) || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
                           alt=""
                           fill
+                          loading="lazy"
+                          sizes="56px"
                           className="object-cover"
                         />
                       </div>
@@ -535,9 +537,11 @@ export default function AdminProductsPage() {
                         <td className="py-3 px-4 flex items-center gap-3">
                           <div className="relative w-11 h-11 rounded-lg bg-slate-50 border overflow-hidden shrink-0">
                             <Image
-                              src={prod.images[0] || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
+                              src={getOptimizedCloudinaryUrl(prod.images[0], 90) || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
                               alt=""
                               fill
+                              loading="lazy"
+                              sizes="44px"
                               className="object-cover"
                             />
                           </div>
@@ -856,7 +860,14 @@ export default function AdminProductsPage() {
               {formData.image && (
                 <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
                   <div className="relative w-12 h-12 rounded-lg bg-white border overflow-hidden shrink-0">
-                    <Image src={formData.image} alt="" fill className="object-cover" />
+                    <Image
+                      src={getOptimizedCloudinaryUrl(formData.image, 100)}
+                      alt=""
+                      fill
+                      loading="lazy"
+                      sizes="48px"
+                      className="object-cover"
+                    />
                   </div>
                   <input
                     type="text"

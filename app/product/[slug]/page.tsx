@@ -40,6 +40,7 @@ import { WhatsAppIcon, getWhatsAppUrl, WHATSAPP_NUMBER } from "@/components/ui/W
 import { useCart } from "@/context/CartContext";
 import { fetchProduct, fetchProducts } from "@/lib/api";
 import { Product } from "@/types";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 interface CustomerReview {
   id: string;
@@ -283,10 +284,11 @@ export default function ProductDetailPage({
     );
   }
 
-  const currentImage =
+  const currentImage = getOptimizedCloudinaryUrl(
     product.images[activeImageIndex] ||
     product.images[0] ||
-    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80";
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"
+  );
 
   const discountPercent =
     product.originalPrice > product.sellPrice
@@ -435,7 +437,14 @@ export default function ProductDetailPage({
                         : "border-slate-200 hover:border-slate-300 opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <Image src={img} alt="" fill className="object-cover p-1" />
+                    <Image
+                      src={getOptimizedCloudinaryUrl(img, 160)}
+                      alt=""
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 640px) 64px, 80px"
+                      className="object-cover p-1"
+                    />
                   </button>
                 ))}
               </div>
@@ -869,6 +878,8 @@ export default function ProductDetailPage({
               src={currentImage}
               alt={product.name}
               fill
+              loading="lazy"
+              sizes="(max-width: 1024px) 90vw, 800px"
               className="object-contain"
             />
           </div>

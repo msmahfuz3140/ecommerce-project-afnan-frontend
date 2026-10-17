@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { adminGetOrders, adminUpdateOrderStatus } from "@/lib/api";
 import { Order, OrderStatus } from "@/types";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -472,7 +473,14 @@ export default function AdminOrdersPage() {
                           <td className="py-2.5 px-3 flex items-center gap-2">
                             {item.image && (
                               <div className="relative w-8 h-8 rounded bg-slate-100 border shrink-0 overflow-hidden">
-                                <Image src={item.image} alt="" fill className="object-cover" />
+                                <Image
+                                  src={getOptimizedCloudinaryUrl(item.image, 64) || ""}
+                                  alt=""
+                                  fill
+                                  loading="lazy"
+                                  sizes="32px"
+                                  className="object-cover"
+                                />
                               </div>
                             )}
                             <span className="font-semibold text-slate-900">{item.name}</span>

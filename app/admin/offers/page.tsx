@@ -19,7 +19,7 @@ import {
   adminDeleteOffer,
   adminUploadMedia,
 } from "@/lib/api";
-import { compressImageFile } from "@/lib/imageOptimizer";
+import { compressImageFile, getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 import { Offer } from "@/types";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
@@ -204,9 +204,11 @@ export default function AdminOffersPage() {
                 ) : (
                   <div className="relative aspect-video w-full bg-slate-900 overflow-hidden">
                     <Image
-                      src={off.bannerImage || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80"}
+                      src={getOptimizedCloudinaryUrl(off.bannerImage, 600) || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80"}
                       alt=""
                       fill
+                      loading="lazy"
+                      sizes="(max-width: 640px) 100vw, 350px"
                       className="object-cover opacity-80"
                     />
                     <div className="absolute top-2.5 left-2.5 bg-[#df2d4d] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">
@@ -376,7 +378,14 @@ export default function AdminOffersPage() {
 
                   {formData.bannerImage && (
                     <div className="relative aspect-video rounded-xl overflow-hidden border">
-                      <Image src={formData.bannerImage} alt="" fill className="object-cover" />
+                      <Image
+                        src={getOptimizedCloudinaryUrl(formData.bannerImage, 500)}
+                        alt=""
+                        fill
+                        loading="lazy"
+                        sizes="(max-width: 640px) 100vw, 400px"
+                        className="object-cover"
+                      />
                     </div>
                   )}
                 </>

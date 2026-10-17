@@ -8,6 +8,7 @@ import { ShoppingCart, Zap, Star } from "lucide-react";
 import { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { WhatsAppIcon, getWhatsAppUrl } from "@/components/ui/WhatsAppButton";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 interface ProductCardProps {
   product: Product;
@@ -123,9 +124,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) 
         className="relative w-full pt-[95%] bg-slate-50 cursor-pointer overflow-hidden block"
       >
         <Image
-          src={product.images[0] || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
+          src={getOptimizedCloudinaryUrl(product.images[0]) || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
           alt={product.name}
           fill
+          loading="lazy"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover p-2 rounded-2xl"
         />

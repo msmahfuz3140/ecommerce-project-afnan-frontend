@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { CheckCircle2, ShoppingBag, X, ArrowRight } from "lucide-react";
 import { Product } from "@/types";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 interface ToastProps {
   toast: {
@@ -25,9 +26,11 @@ export const Toast: React.FC<ToastProps> = ({ toast, onClose, onOpenCart }) => {
         <div className="relative w-12 h-12 rounded-xl bg-white/10 overflow-hidden shrink-0 border border-white/10 flex items-center justify-center">
           {toast.product.images?.[0] ? (
             <Image
-              src={toast.product.images[0]}
+              src={getOptimizedCloudinaryUrl(toast.product.images[0], 100)}
               alt={toast.product.name}
               fill
+              loading="lazy"
+              sizes="48px"
               className="object-cover"
             />
           ) : (

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 export const CartDrawer: React.FC = () => {
   const router = useRouter();
@@ -78,9 +79,11 @@ export const CartDrawer: React.FC = () => {
                   {/* Thumbnail */}
                   <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0">
                     <Image
-                      src={item.product.images[0] || ""}
+                      src={getOptimizedCloudinaryUrl(item.product.images[0], 150) || ""}
                       alt={item.product.name}
                       fill
+                      loading="lazy"
+                      sizes="(max-width: 640px) 64px, 72px"
                       className="object-cover"
                     />
                   </div>

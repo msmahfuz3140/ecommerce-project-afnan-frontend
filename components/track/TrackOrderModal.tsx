@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { trackOrder } from "@/lib/api";
 import { Order, OrderStatus } from "@/types";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppButton";
 
 interface TrackOrderModalProps {
@@ -320,7 +321,14 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                               <div className="flex items-center gap-2 truncate pr-2">
                                 {it.image && (
                                   <div className="relative w-7 h-7 rounded overflow-hidden bg-white border border-slate-200 shrink-0">
-                                    <Image src={it.image} alt="" fill className="object-cover" />
+                                    <Image
+                                      src={getOptimizedCloudinaryUrl(it.image, 60)}
+                                      alt=""
+                                      fill
+                                      loading="lazy"
+                                      sizes="28px"
+                                      className="object-cover"
+                                    />
                                   </div>
                                 )}
                                 <span className="truncate font-medium">{it.name || "Product"}</span>

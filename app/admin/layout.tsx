@@ -109,7 +109,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Brand */}
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
           <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-black border border-slate-700 shrink-0">
-            <Image src="/gaxin-mart-logo.jpg" alt="Logo" fill className="object-cover" />
+            <Image
+              src="/gaxin-mart-logo.jpg"
+              alt="Logo"
+              fill
+              loading="lazy"
+              sizes="40px"
+              className="object-cover"
+            />
           </div>
           <div>
             <h1 className="font-black text-lg tracking-tight text-white leading-tight">
@@ -192,7 +199,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="md:hidden bg-slate-900 text-white p-4 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-2">
           <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-black border border-slate-700 shrink-0">
-            <Image src="/gaxin-mart-logo.jpg" alt="Logo" fill className="object-cover" />
+            <Image
+              src="/gaxin-mart-logo.jpg"
+              alt="Logo"
+              fill
+              loading="lazy"
+              sizes="32px"
+              className="object-cover"
+            />
           </div>
           <span className="font-bold text-base">GAXIN MART Admin</span>
         </div>
@@ -212,7 +226,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div className="flex items-center gap-2">
                   <div className="relative w-7 h-7 rounded-lg overflow-hidden bg-black border border-slate-700 shrink-0">
-                    <Image src="/gaxin-mart-logo.jpg" alt="Logo" fill className="object-cover" />
+                    <Image
+                      src="/gaxin-mart-logo.jpg"
+                      alt="Logo"
+                      fill
+                      loading="lazy"
+                      sizes="28px"
+                      className="object-cover"
+                    />
                   </div>
                   <span className="font-black text-base">GAXIN MART Admin</span>
                 </div>

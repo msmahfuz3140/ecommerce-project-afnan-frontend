@@ -7,6 +7,7 @@ import { X, Zap, ShoppingCart, ShieldCheck, Truck, RotateCcw, ChevronDown, Chevr
 import { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { WhatsAppIcon, getWhatsAppUrl, WHATSAPP_NUMBER } from "@/components/ui/WhatsAppButton";
+import { getOptimizedCloudinaryUrl } from "@/lib/imageOptimizer";
 
 interface ProductDetailsModalProps {
   product: Product | null;
@@ -67,9 +68,11 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
           <div className="space-y-3">
             <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-200">
               <Image
-                src={product.images[selectedImageIndex] || product.images[0]}
+                src={getOptimizedCloudinaryUrl(product.images[selectedImageIndex] || product.images[0])}
                 alt={product.name}
                 fill
+                loading="lazy"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-contain p-4"
               />
               {discountPercent > 0 && (
@@ -90,7 +93,14 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
                       selectedImageIndex === i ? "border-[#df2d4d]" : "border-slate-200"
                     }`}
                   >
-                    <Image src={img} alt="" fill className="object-cover" />
+                    <Image
+                      src={getOptimizedCloudinaryUrl(img, 128)}
+                      alt=""
+                      fill
+                      loading="lazy"
+                      sizes="64px"
+                      className="object-cover"
+                    />
                   </button>
                 ))}
               </div>
